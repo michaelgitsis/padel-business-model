@@ -293,11 +293,134 @@
         }
 
         .parameter label {
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             font-size: 0.875rem;
             font-weight: 500;
             color: var(--text);
             margin-bottom: 0.5rem;
+        }
+
+        .info-btn {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .info-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .modal-close {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-secondary);
+            color: var(--text);
+        }
+
+        .modal-body {
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .modal-section {
+            margin-bottom: 1rem;
+        }
+
+        .modal-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-section h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .sources-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sources-list li {
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .sources-list a {
+            color: var(--primary);
+            text-decoration: none;
+            word-break: break-word;
+        }
+
+        .sources-list a:hover {
+            text-decoration: underline;
         }
 
         .parameter input[type="number"],
@@ -413,6 +536,111 @@
 
         .data-table tr:hover {
             background: var(--bg-secondary);
+        }
+
+        /* Calculation Breakdown */
+        .calculation-breakdown {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .breakdown-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 1rem;
+        }
+
+        .breakdown-section h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .parameters-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .param-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: var(--bg);
+            border-radius: 4px;
+        }
+
+        .param-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .param-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+            font-family: 'SF Mono', 'Monaco', monospace;
+        }
+
+        .formula-display {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .formula-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: var(--bg);
+            border-radius: 4px;
+        }
+
+        .formula-row.total-row {
+            background: var(--primary-light);
+            border: 2px solid var(--primary);
+        }
+
+        .formula-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            flex: 1;
+        }
+
+        .formula-value {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text);
+            font-family: 'SF Mono', 'Monaco', monospace;
+            text-align: right;
+            margin-left: 1rem;
+        }
+
+        .breakdown-notice {
+            background: var(--warning-light);
+            border: 2px solid var(--warning);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .notice-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .notice-content i {
+            color: var(--warning);
+            margin-top: 0.2rem;
+        }
+
+        .notice-content div {
+            font-size: 0.875rem;
+            color: var(--text);
         }
 
         /* Scenarios Tab */
@@ -2079,7 +2307,9 @@
                     <div class="parameter-section">
                         <h3><i class="fas fa-building"></i> Investment</h3>
                         <div class="parameter full-width">
-                            <label>Number of Courts</label>
+                            <label>Number of Courts
+                                <button class="info-btn" onclick="showInfoModal('numCourts')" type="button">i</button>
+                            </label>
                             <div class="range-container">
                                 <input type="range" id="numCourts" min="1" max="12" value="8" step="1">
                                 <span class="range-value">8</span>
@@ -2087,15 +2317,21 @@
                         </div>
                         <div class="parameter-inputs">
                             <div class="parameter">
-                                <label>Cost per Court (€)</label>
+                                <label>Cost per Court (€)
+                                    <button class="info-btn" onclick="showInfoModal('costPerCourt')" type="button">i</button>
+                                </label>
                                 <input type="text" id="costPerCourt" value="35,000" class="amount-input" inputmode="numeric">
                             </div>
                             <div class="parameter">
-                                <label>Infrastructure Cost (€)</label>
+                                <label>Infrastructure Cost (€)
+                                    <button class="info-btn" onclick="showInfoModal('infrastructureCost')" type="button">i</button>
+                                </label>
                                 <input type="text" id="infrastructureCost" value="100,000" class="amount-input" inputmode="numeric">
                             </div>
                             <div class="parameter">
-                                <label>Additional Facilities (F&B + Pro Shop) (€)</label>
+                                <label>Additional Facilities (F&B + Pro Shop) (€)
+                                    <button class="info-btn" onclick="showInfoModal('additionalFacilities')" type="button">i</button>
+                                </label>
                                 <input type="text" id="additionalFacilities" value="200,000" class="amount-input" inputmode="numeric">
                             </div>
                         </div>
@@ -2105,21 +2341,27 @@
                     <div class="parameter-section">
                         <h3><i class="fas fa-euro-sign"></i> Revenue Model</h3>
                         <div class="parameter full-width">
-                            <label>Hourly Rate (€)</label>
+                            <label>Hourly Rate (€)
+                                <button class="info-btn" onclick="showInfoModal('hourlyRate')" type="button">i</button>
+                            </label>
                             <div class="range-container">
                                 <input type="range" id="hourlyRate" min="20" max="40" value="28" step="1">
                                 <span class="range-value">€28</span>
                             </div>
                         </div>
                         <div class="parameter full-width">
-                            <label>Occupancy Rate (%)</label>
+                            <label>Occupancy Rate (%)
+                                <button class="info-btn" onclick="showInfoModal('occupancyRate')" type="button">i</button>
+                            </label>
                             <div class="range-container">
                                 <input type="range" id="occupancyRate" min="20" max="90" value="50" step="5">
                                 <span class="range-value">50%</span>
                             </div>
                         </div>
                         <div class="parameter full-width">
-                            <label>Operating Hours/Day</label>
+                            <label>Operating Hours/Day
+                                <button class="info-btn" onclick="showInfoModal('hoursPerDay')" type="button">i</button>
+                            </label>
                             <div class="range-container">
                                 <input type="range" id="hoursPerDay" min="8" max="16" value="12" step="1">
                                 <span class="range-value">12h</span>
@@ -2127,7 +2369,9 @@
                         </div>
                         <div class="parameter-inputs">
                             <div class="parameter">
-                                <label>Operating Days/Year</label>
+                                <label>Operating Days/Year
+                                    <button class="info-btn" onclick="showInfoModal('operatingDays')" type="button">i</button>
+                                </label>
                                 <input type="number" id="daysPerYear" min="300" max="365" value="360" step="1">
                             </div>
                         </div>
@@ -2138,19 +2382,27 @@
                         <h3><i class="fas fa-receipt"></i> Operating Costs</h3>
                         <div class="parameter-inputs">
                             <div class="parameter">
-                                <label>Annual Land Rental (€)</label>
+                                <label>Annual Land Rental (€)
+                                    <button class="info-btn" onclick="showInfoModal('landRental')" type="button">i</button>
+                                </label>
                                 <input type="text" id="landRental" value="120,000" class="amount-input" inputmode="numeric">
                             </div>
                             <div class="parameter">
-                                <label>Maintenance per Court/Year (€)</label>
+                                <label>Maintenance per Court/Year (€)
+                                    <button class="info-btn" onclick="showInfoModal('maintenancePerCourt')" type="button">i</button>
+                                </label>
                                 <input type="text" id="maintenancePerCourt" value="2,200" class="amount-input" inputmode="numeric">
                             </div>
                             <div class="parameter">
-                                <label>Annual Water Cost (€)</label>
+                                <label>Annual Water Cost (€)
+                                    <button class="info-btn" onclick="showInfoModal('waterCost')" type="button">i</button>
+                                </label>
                                 <input type="text" id="waterCost" value="8,000" class="amount-input" inputmode="numeric">
                             </div>
                             <div class="parameter">
-                                <label>Annual Electricity Cost (€)</label>
+                                <label>Annual Electricity Cost (€)
+                                    <button class="info-btn" onclick="showInfoModal('electricityCost')" type="button">i</button>
+                                </label>
                                 <input type="text" id="electricityCost" value="15,000" class="amount-input" inputmode="numeric">
                             </div>
                         </div>
@@ -2161,19 +2413,27 @@
                         <h3><i class="fas fa-users"></i> Staff Salaries</h3>
                         <div class="parameter-inputs">
                             <div class="parameter">
-                                <label>Manager Salary (€/year)</label>
+                                <label>Manager Salary (€/year)
+                                    <button class="info-btn" onclick="showInfoModal('managerSalary')" type="button">i</button>
+                                </label>
                                 <input type="text" id="managerSalary" value="42,000" class="amount-input" inputmode="numeric">
                             </div>
                             <div class="parameter">
-                                <label>Instructor Salary (€/year)</label>
+                                <label>Instructor Salary (€/year)
+                                    <button class="info-btn" onclick="showInfoModal('instructorSalary')" type="button">i</button>
+                                </label>
                                 <input type="text" id="instructorSalary" value="19,800" class="amount-input" inputmode="numeric">
                             </div>
                             <div class="parameter">
-                                <label>Reception Staff (€/year)</label>
+                                <label>Reception Staff (€/year)
+                                    <button class="info-btn" onclick="showInfoModal('receptionSalary')" type="button">i</button>
+                                </label>
                                 <input type="text" id="receptionSalary" value="14,400" class="amount-input" inputmode="numeric">
                             </div>
                             <div class="parameter">
-                                <label>Maintenance Staff (€/year)</label>
+                                <label>Maintenance Staff (€/year)
+                                    <button class="info-btn" onclick="showInfoModal('maintenanceStaffSalary')" type="button">i</button>
+                                </label>
                                 <input type="text" id="maintenanceStaffSalary" value="16,800" class="amount-input" inputmode="numeric">
                             </div>
                         </div>
@@ -2184,20 +2444,51 @@
                         <h3><i class="fas fa-plus-circle"></i> Additional Revenue</h3>
                         <div class="parameter-inputs">
                             <div class="parameter">
-                                <label>Pro Shop Annual (€)</label>
+                                <label>Pro Shop Annual (€)
+                                    <button class="info-btn" onclick="showInfoModal('proShopRevenue')" type="button">i</button>
+                                </label>
                                 <input type="text" id="proShopRevenue" value="15,000" class="amount-input" inputmode="numeric">
                             </div>
                             <div class="parameter">
-                                <label>F&B Annual (€)</label>
+                                <label>F&B Annual (€)
+                                    <button class="info-btn" onclick="showInfoModal('fbRevenue')" type="button">i</button>
+                                </label>
                                 <input type="text" id="fbRevenue" value="20,000" class="amount-input" inputmode="numeric">
                             </div>
                             <div class="parameter">
-                                <label>Events per Year</label>
+                                <label>Events per Year
+                                    <button class="info-btn" onclick="showInfoModal('eventsPerYear')" type="button">i</button>
+                                </label>
                                 <input type="number" id="eventsPerYear" min="0" max="24" value="6" step="1">
                             </div>
                             <div class="parameter">
-                                <label>Revenue per Event (€)</label>
+                                <label>Revenue per Event (€)
+                                    <button class="info-btn" onclick="showInfoModal('revenuePerEvent')" type="button">i</button>
+                                </label>
                                 <input type="text" id="revenuePerEvent" value="2,000" class="amount-input" inputmode="numeric">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VAT & Platform Fees -->
+                    <div class="parameter-section">
+                        <h3><i class="fas fa-calculator"></i> VAT & Platform Fees</h3>
+                        <div class="parameter full-width">
+                            <label>VAT Rate (%)
+                                <button class="info-btn" onclick="showInfoModal('vatRate')" type="button">i</button>
+                            </label>
+                            <div class="range-container">
+                                <input type="range" id="vatRate" min="5" max="19" value="5" step="1">
+                                <span class="range-value">5%</span>
+                            </div>
+                        </div>
+                        <div class="parameter full-width">
+                            <label>Playtomic Commission (%)
+                                <button class="info-btn" onclick="showInfoModal('playtomicCommission')" type="button">i</button>
+                            </label>
+                            <div class="range-container">
+                                <input type="range" id="playtomicCommission" min="2" max="10" value="4" step="0.5">
+                                <span class="range-value">4%</span>
                             </div>
                         </div>
                     </div>
@@ -2206,7 +2497,9 @@
                     <div class="parameter-section">
                         <h3><i class="fas fa-university"></i> Financing</h3>
                         <div class="parameter full-width">
-                            <label>Financing Percentage (%)</label>
+                            <label>Financing Percentage (%)
+                                <button class="info-btn" onclick="showInfoModal('financingPercentage')" type="button">i</button>
+                            </label>
                             <div class="range-container">
                                 <input type="range" id="financingPercentage" min="0" max="80" value="60" step="5">
                                 <span class="range-value">60%</span>
@@ -2214,15 +2507,21 @@
                         </div>
                         <div class="parameter-inputs">
                             <div class="parameter">
-                                <label>Interest Rate (%)</label>
+                                <label>Interest Rate (%)
+                                    <button class="info-btn" onclick="showInfoModal('interestRate')" type="button">i</button>
+                                </label>
                                 <input type="number" id="interestRate" min="0" max="15" value="4" step="0.1">
                             </div>
                             <div class="parameter">
-                                <label>Loan Term (years)</label>
+                                <label>Loan Term (years)
+                                    <button class="info-btn" onclick="showInfoModal('loanTerm')" type="button">i</button>
+                                </label>
                                 <input type="number" id="loanTerm" min="5" max="5" value="5" step="1" readonly>
                             </div>
                             <div class="parameter">
-                                <label>Project Period (years)</label>
+                                <label>Project Period (years)
+                                    <button class="info-btn" onclick="showInfoModal('projectPeriod')" type="button">i</button>
+                                </label>
                                 <div class="range-container">
                                     <input type="range" id="projectPeriod" min="3" max="10" value="5" step="1">
                                     <span class="range-value">5 years</span>
@@ -2606,6 +2905,148 @@
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calculation Breakdown Section -->
+                <div class="report-section">
+                    <h3><i class="fas fa-calculator"></i> Calculation Breakdown</h3>
+                    <div class="calculation-breakdown">
+                        <div class="breakdown-section">
+                            <h4>Current Parameters Being Used</h4>
+                            <div class="parameters-display" id="currentParametersDisplay">
+                                <div class="param-row">
+                                    <span class="param-label">Number of Courts:</span>
+                                    <span class="param-value" id="paramCourts">—</span>
+                                </div>
+                                <div class="param-row">
+                                    <span class="param-label">Hourly Rate:</span>
+                                    <span class="param-value" id="paramRate">—</span>
+                                </div>
+                                <div class="param-row">
+                                    <span class="param-label">Occupancy Rate:</span>
+                                    <span class="param-value" id="paramOccupancy">—</span>
+                                </div>
+                                <div class="param-row">
+                                    <span class="param-label">Hours per Day:</span>
+                                    <span class="param-value" id="paramHours">—</span>
+                                </div>
+                                <div class="param-row">
+                                    <span class="param-label">Days per Year:</span>
+                                    <span class="param-value" id="paramDays">—</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="breakdown-section">
+                            <h4>Revenue Calculation</h4>
+                            <div class="formula-display" id="revenueBreakdown">
+                                <div class="formula-row">
+                                    <span class="formula-label">Court Rental Revenue:</span>
+                                    <span class="formula-value" id="formulaCourtRevenue">—</span>
+                                </div>
+                                <div class="formula-row">
+                                    <span class="formula-label">Pro Shop Revenue:</span>
+                                    <span class="formula-value" id="formulaProShop">—</span>
+                                </div>
+                                <div class="formula-row">
+                                    <span class="formula-label">F&B Revenue:</span>
+                                    <span class="formula-value" id="formulaFB">—</span>
+                                </div>
+                                <div class="formula-row">
+                                    <span class="formula-label">Event Revenue:</span>
+                                    <span class="formula-value" id="formulaEvents">—</span>
+                                </div>
+                                <div class="formula-row total-row">
+                                    <span class="formula-label"><strong>Total Revenue:</strong></span>
+                                    <span class="formula-value" id="formulaTotalRevenue"><strong>—</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="breakdown-section">
+                            <h4>Cost Calculation</h4>
+                            <div class="formula-display" id="costBreakdown">
+                                <div class="formula-row">
+                                    <span class="formula-label">Land Rental:</span>
+                                    <span class="formula-value" id="formulaLandRental">—</span>
+                                </div>
+                                <div class="formula-row">
+                                    <span class="formula-label">Maintenance:</span>
+                                    <span class="formula-value" id="formulaMaintenance">—</span>
+                                </div>
+                                <div class="formula-row">
+                                    <span class="formula-label">Salaries:</span>
+                                    <span class="formula-value" id="formulaSalaries">—</span>
+                                </div>
+                                <div class="formula-row">
+                                    <span class="formula-label">Utilities:</span>
+                                    <span class="formula-value" id="formulaUtilities">—</span>
+                                </div>
+                                <div class="formula-row total-row">
+                                    <span class="formula-label"><strong>Total Costs:</strong></span>
+                                    <span class="formula-value" id="formulaTotalCosts"><strong>—</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="breakdown-section">
+                            <h4>Profit & ROI Calculation</h4>
+                            <div class="formula-display" id="profitBreakdown">
+                                <div class="formula-row">
+                                    <span class="formula-label">Annual Net Profit:</span>
+                                    <span class="formula-value" id="formulaNetProfit">—</span>
+                                </div>
+                                <div class="formula-row">
+                                    <span class="formula-label">Total Investment:</span>
+                                    <span class="formula-value" id="formulaTotalInvestment">—</span>
+                                </div>
+                                <div class="formula-row">
+                                    <span class="formula-label">Annual Project ROI:</span>
+                                    <span class="formula-value" id="formulaProjectROI">—</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="breakdown-section">
+                            <h4>Financing & Equity Returns</h4>
+                            <div class="formula-display" id="financingBreakdown">
+                                <div class="formula-row">
+                                    <span class="formula-label">Loan Amount:</span>
+                                    <span class="formula-value" id="formulaLoanAmount">—</span>
+                                </div>
+                                <div class="formula-row">
+                                    <span class="formula-label">Equity Investment:</span>
+                                    <span class="formula-value" id="formulaEquityInvestment">—</span>
+                                </div>
+                                <div class="formula-row">
+                                    <span class="formula-label">Annual Debt Service:</span>
+                                    <span class="formula-value" id="formulaDebtService">—</span>
+                                </div>
+                                <div class="formula-row">
+                                    <span class="formula-label">Cash Flow to Equity:</span>
+                                    <span class="formula-value" id="formulaCashFlow">—</span>
+                                </div>
+                                <div class="formula-row">
+                                    <span class="formula-label">Equity ROI:</span>
+                                    <span class="formula-value" id="formulaEquityROI">—</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="breakdown-notice">
+                            <div class="notice-content">
+                                <i class="fas fa-info-circle"></i>
+                                <div>
+                                    <strong>Data Source:</strong> All calculations update in real-time based on input parameters above. 
+                                    If you see different numbers in the Financial Performance section, check if previous settings 
+                                    were saved to your browser's localStorage.
+                                </div>
+                            </div>
+                            <button class="btn btn-warning" onclick="clearLocalStorageAndReset()" style="margin-top: 1rem;">
+                                <i class="fas fa-refresh"></i> Reset to Default Values
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -3380,6 +3821,8 @@
                 fbRevenue: 20000,
                 eventsPerYear: 6,
                 revenuePerEvent: 2000,
+                vatRate: 5,
+                playtomicCommission: 4,
                 projectPeriod: 5
             };
             
@@ -3413,6 +3856,9 @@
                 
                 // Initialize Bank Presentation charts
                 updateBankPresentationCharts(results);
+                
+                // Ensure calculation breakdown is updated
+                updateCalculationBreakdown(results);
             }, 100);
         });
 
@@ -3504,6 +3950,9 @@
                 fbRevenue: parseFloat(unformatNumberInput(document.getElementById('fbRevenue').value)),
                 eventsPerYear: parseInt(unformatNumberInput(document.getElementById('eventsPerYear').value)),
                 revenuePerEvent: parseFloat(unformatNumberInput(document.getElementById('revenuePerEvent').value)),
+                // VAT & Platform fees
+                vatRate: parseFloat(document.getElementById('vatRate').value),
+                playtomicCommission: parseFloat(document.getElementById('playtomicCommission').value),
                 // Financing parameters
                 financingPercentage: parseFloat(document.getElementById('financingPercentage').value) / 100,
                 interestRate: parseFloat(document.getElementById('interestRate').value) / 100,
@@ -3514,10 +3963,25 @@
             };
 
             const totalInvestment = (params.numCourts * params.costPerCourt) + params.infrastructureCost + params.additionalFacilities;
-            const courtRentalRevenue = params.numCourts * params.hourlyRate * params.hoursPerDay * 
-                                      params.daysPerYear * params.occupancyRate;
+            
+            // Gross court rental revenue (what customers pay, VAT inclusive)
+            const grossCourtRevenue = params.numCourts * params.hourlyRate * params.hoursPerDay * 
+                                     params.daysPerYear * params.occupancyRate;
+            
+            // VAT calculation (VAT is included in gross price)
+            const vatAmount = grossCourtRevenue * (params.vatRate / (100 + params.vatRate));
+            const revenueAfterVAT = grossCourtRevenue - vatAmount;
+            
+            // Playtomic commission (on gross revenue before VAT deduction)
+            const playtomicCommissionAmount = grossCourtRevenue * (params.playtomicCommission / 100);
+            
+            // Net court revenue (after both VAT and Playtomic)
+            const netCourtRevenue = grossCourtRevenue - vatAmount - playtomicCommissionAmount;
+            
             const eventRevenue = params.eventsPerYear * params.revenuePerEvent;
-            const totalRevenue = courtRentalRevenue + params.proShopRevenue + params.fbRevenue + eventRevenue;
+            
+            // Total net revenue (court + ancillary, assuming ancillary is net)
+            const totalRevenue = netCourtRevenue + params.proShopRevenue + params.fbRevenue + eventRevenue;
             
             const totalMaintenance = params.numCourts * params.maintenancePerCourt;
             const totalSalaries = params.managerSalary + params.instructorSalary + 
@@ -3615,9 +4079,13 @@
             }
             
             const fixedCosts = totalExpenses - (params.proShopRevenue + params.fbRevenue + eventRevenue);
-            const revenuePerOccupancyPercent = params.numCourts * params.hourlyRate * params.hoursPerDay * 
-                                              params.daysPerYear * 0.01;
-            const breakEvenOccupancy = fixedCosts / revenuePerOccupancyPercent;
+            // Break-even should use net revenue per occupancy percent (after VAT and Playtomic)
+            const grossRevenuePerOccupancyPercent = params.numCourts * params.hourlyRate * params.hoursPerDay * 
+                                                   params.daysPerYear * 0.01;
+            const vatPerOccupancyPercent = grossRevenuePerOccupancyPercent * (params.vatRate / (100 + params.vatRate));
+            const playtomicPerOccupancyPercent = grossRevenuePerOccupancyPercent * (params.playtomicCommission / 100);
+            const netRevenuePerOccupancyPercent = grossRevenuePerOccupancyPercent - vatPerOccupancyPercent - playtomicPerOccupancyPercent;
+            const breakEvenOccupancy = fixedCosts / netRevenuePerOccupancyPercent;
             
             const totalProjectProfit = netProfit * params.projectPeriod;
 
@@ -3625,7 +4093,11 @@
                 params,
                 totalInvestment: totalProjectCost,  // Use total project cost including dev interest
                 baseInvestment: totalInvestment,    // Keep base investment for reference
-                courtRentalRevenue,
+                grossCourtRevenue,
+                vatAmount,
+                playtomicCommissionAmount,
+                netCourtRevenue,
+                courtRentalRevenue: netCourtRevenue,  // Keep for compatibility
                 eventRevenue,
                 totalRevenue,
                 totalMaintenance,
@@ -3719,6 +4191,9 @@
             
             // Update Bank Presentation
             updateBankPresentation(results);
+            
+            // Update calculation breakdown
+            updateCalculationBreakdown(results);
             
             // Update sensitivity highlights
             if (typeof updateSensitivityHighlights === 'function') {
@@ -4497,7 +4972,9 @@
                 proShopRevenue: 15000,
                 fbRevenue: 20000,
                 eventsPerYear: 6,
-                revenuePerEvent: 2000
+                revenuePerEvent: 2000,
+                vatRate: 5,
+                playtomicCommission: 4
             };
             
             Object.keys(defaults).forEach(key => {
@@ -5661,6 +6138,360 @@ Best regards`;
                 closeSaveScenarioModal();
             }
         }
+
+        // Parameter source information data
+        const parameterSources = {
+            numCourts: {
+                title: "Number of Courts",
+                explanation: "Industry recommendations suggest 8 courts as optimal for viable operations and efficient facility management.",
+                sources: [
+                    { text: "Padel Court Profitability Analysis", url: "https://www.porticosport.com/news/padel-court-profitability" },
+                    { text: "Business Plan for Padel Centers", url: "https://www.padelcreations.com/business-plan-for-padel/" }
+                ]
+            },
+            costPerCourt: {
+                title: "Cost per Court (€35,000)",
+                explanation: "Fully equipped court with LED lighting, premium glass walls, and professional installation. Range from €18,000 (basic) to €50,000 (premium).",
+                sources: [
+                    { text: "Padel Court Construction Costs", url: "https://sportsvenuecalculator.com/knowledge/padel-courts/padel-court-construction-cost/" },
+                    { text: "How Much Does It Cost to Build a Padel Court", url: "https://www.porticosport.com/news/how-much-does-it-cost-to-build-a-padel-court" },
+                    { text: "Padel Court Cost Analysis", url: "https://www.padel.fyi/blog/padel-court-cost" }
+                ]
+            },
+            infrastructureCost: {
+                title: "Infrastructure Cost (€100,000)",
+                explanation: "Includes site preparation, foundations, drainage, utilities, parking, and basic amenities for 8-court facility.",
+                sources: [
+                    { text: "Padel Court Construction Costs", url: "https://sportsvenuecalculator.com/knowledge/padel-courts/padel-court-construction-cost/" },
+                    { text: "Complete Padel Facility Development", url: "https://www.porticosport.com/news/how-much-does-it-cost-to-build-a-padel-court" }
+                ]
+            },
+            additionalFacilities: {
+                title: "Additional Facilities (€0)",
+                explanation: "Optional costs for enhanced F&B facilities, expanded pro shop, or premium amenities beyond basic infrastructure.",
+                sources: [
+                    { text: "Padel Center Revenue Streams", url: "https://www.padelcreations.com/income-sources-in-a-padel-center/" },
+                    { text: "New Padel Clubs Revenue Streams", url: "https://www.nxpadel.com/en/blog/new-padel-clubs-revenue-streams" }
+                ]
+            },
+            hourlyRate: {
+                title: "Hourly Rate (€28)",
+                explanation: "Based on Cyprus market research: NAIS Sports (€24-32), Tennis Academy Limassol (€30). Conservative €28 average accounts for peak/off-peak pricing.",
+                sources: [
+                    { text: "NAIS Sports Padel Pricing", url: "https://www.naissports.com/facility/2v2-padel-tennis/" },
+                    { text: "Tennis Academy Limassol Padel", url: "https://pitchfinder.io/listing/the-tennis-academy-limassol-padel/" },
+                    { text: "NAIS Sports Padel Products", url: "https://www.naissports.com/product-category/padel/" }
+                ]
+            },
+            occupancyRate: {
+                title: "Occupancy Rate (50%)",
+                explanation: "Industry benchmarks show 40-80% occupancy in first year, with established facilities reaching 70-90% during peak hours. 50% represents realistic conservative estimate.",
+                sources: [
+                    { text: "Padel Court Profitability", url: "https://www.porticosport.com/news/padel-court-profitability" },
+                    { text: "Business Plan for Padel", url: "https://www.padelcreations.com/business-plan-for-padel/" },
+                    { text: "New Padel Clubs Revenue Analysis", url: "https://www.nxpadel.com/en/blog/new-padel-clubs-revenue-streams" }
+                ]
+            },
+            hoursPerDay: {
+                title: "Operating Hours per Day (12)",
+                explanation: "Standard padel facility operations from 8:00 AM to 8:00 PM with LED lighting enabling extended hours during winter months.",
+                sources: [
+                    { text: "Padel Court Operations Guide", url: "https://www.porticosport.com/news/padel-court-profitability" },
+                    { text: "Cyprus Padel Court Installation", url: "https://www.wepadel.com/projects/cyprus-padel-court-installation" }
+                ]
+            },
+            operatingDays: {
+                title: "Operating Days per Year (360)",
+                explanation: "360 days accounts for weather closures and maintenance days. Cyprus climate allows year-round outdoor operations.",
+                sources: [
+                    { text: "Cyprus Climate for Padel", url: "https://www.wepadel.com/projects/cyprus-padel-court-installation" },
+                    { text: "Padel Court Operations", url: "https://www.porticosport.com/news/padel-court-profitability" }
+                ]
+            },
+            landRental: {
+                title: "Annual Land Rental (€120,000)",
+                explanation: "Based on Limassol commercial property rates for 10,000m² facility. Competitive rates for sports facility development.",
+                sources: [
+                    { text: "Limassol Commercial Property", url: "https://www.developerscyprus.com/for-rent/commercial/limassol/" },
+                    { text: "Limassol Commercial Space Rental", url: "https://realty.com.cy/rent/limassol/space" },
+                    { text: "Vilanos Properties Commercial", url: "https://www.vilanosproperties.com/en-US/forrent/commercials/results.html" }
+                ]
+            },
+            maintenancePerCourt: {
+                title: "Maintenance per Court/Year (€2,200)",
+                explanation: "Annual maintenance includes surface cleaning, artificial turf care, line repainting, drainage upkeep, and lighting maintenance per court.",
+                sources: [
+                    { text: "Padel Court Maintenance Costs", url: "https://www.pfsgulf.com/what-are-the-maintenance-costs-associated-with-a-padel-tennis-court/" },
+                    { text: "Padel Court Maintenance Guide", url: "https://www.padelmagic.co.uk/padel-news/padel-court-maintenance-costs" },
+                    { text: "Padel Court Maintenance", url: "https://padelmagic.es/blog/padel-court-maintenance/" }
+                ]
+            },
+            waterCost: {
+                title: "Annual Water Cost (€8,000)",
+                explanation: "Water consumption for court cleaning, irrigation of surrounding areas, and facility maintenance based on Cyprus utility rates.",
+                sources: [
+                    { text: "Cyprus Utility Costs", url: "https://dojobusiness.com/blogs/news/padel-center-budget-utilities" },
+                    { text: "Padel Center Operating Costs", url: "https://www.reddit.com/r/padel/comments/14ox30e/thinking_about_padel_club_expenses_does_anyone/" }
+                ]
+            },
+            electricityCost: {
+                title: "Annual Electricity Cost (€12,000)",
+                explanation: "LED court lighting, facility lighting, HVAC for indoor areas, and equipment operation based on Cyprus commercial electricity rates.",
+                sources: [
+                    { text: "Cyprus Utility Costs", url: "https://dojobusiness.com/blogs/news/padel-center-budget-utilities" },
+                    { text: "Padel Center Budget Planning", url: "https://www.reddit.com/r/padel/comments/14ox30e/thinking_about_padel_club_expenses_does_anyone/" }
+                ]
+            },
+            managerSalary: {
+                title: "Sports Manager Salary (€42,000)",
+                explanation: "Annual salary for experienced sports facility manager in Cyprus, based on local market rates for sports management positions.",
+                sources: [
+                    { text: "Sports Manager Salary in Cyprus", url: "https://worldsalaries.com/average-sports-manager-salary-in-cyprus/" },
+                    { text: "Cyprus Salary Information", url: "https://www.paylab.com/cy/salaryinfo?lang=en" }
+                ]
+            },
+            instructorSalary: {
+                title: "Fitness Instructor Salary (€19,800)",
+                explanation: "Annual salary for padel instructor/fitness professional in Cyprus market, based on local sports industry rates.",
+                sources: [
+                    { text: "Fitness Instructor Salary Cyprus", url: "https://www.paylab.com/cy/salaryinfo/education-science-research/fitness-instructor?lang=en" },
+                    { text: "Cyprus Employment Guide", url: "https://www.mlsi.gov.cy/mlsi/dl/dl.nsf/All/81BA62406AB06618C22580A50026B974/$file/Employment Guide.pdf" }
+                ]
+            },
+            receptionSalary: {
+                title: "Reception Staff Salary (€14,400)",
+                explanation: "Annual salary for part-time reception/customer service staff based on Cyprus minimum wage and industry standards.",
+                sources: [
+                    { text: "Cyprus Salary Information", url: "https://www.paylab.com/cy/salaryinfo?lang=en" },
+                    { text: "Cyprus Employment Guide", url: "https://www.mlsi.gov.cy/mlsi/dl/dl.nsf/All/81BA62406AB06618C22580A50026B974/$file/Employment Guide.pdf" }
+                ]
+            },
+            maintenanceStaffSalary: {
+                title: "Maintenance Staff Salary (€16,800)",
+                explanation: "Annual salary for facility maintenance worker responsible for court upkeep, cleaning, and minor repairs.",
+                sources: [
+                    { text: "Cyprus Salary Information", url: "https://www.paylab.com/cy/salaryinfo?lang=en" },
+                    { text: "Cyprus Employment Guide", url: "https://www.mlsi.gov.cy/mlsi/dl/dl.nsf/All/81BA62406AB06618C22580A50026B974/$file/Employment Guide.pdf" }
+                ]
+            },
+            proShopRevenue: {
+                title: "Pro Shop Revenue (€15,000)",
+                explanation: "Annual revenue from padel equipment, apparel, and accessories sales. Conservative estimate based on customer traffic and margins.",
+                sources: [
+                    { text: "Padel Center Income Sources", url: "https://www.padelcreations.com/income-sources-in-a-padel-center/" },
+                    { text: "New Padel Clubs Revenue Streams", url: "https://www.nxpadel.com/en/blog/new-padel-clubs-revenue-streams" }
+                ]
+            },
+            fbRevenue: {
+                title: "F&B Revenue (€20,000)",
+                explanation: "Annual food and beverage sales from snacks, drinks, and light meals. Based on customer visits and average spend per person.",
+                sources: [
+                    { text: "Padel Center Revenue Streams", url: "https://www.padelcreations.com/income-sources-in-a-padel-center/" },
+                    { text: "Padel Club Business Model", url: "https://sheets.market/2025/03/19/padel-club-business-model/" }
+                ]
+            },
+            eventsPerYear: {
+                title: "Events per Year (6)",
+                explanation: "Conservative estimate of tournaments, corporate events, and social competitions that generate additional revenue beyond regular court bookings.",
+                sources: [
+                    { text: "Padel Center Hosting Income", url: "https://dojobusiness.com/blogs/news/padel-center-hosting-income" },
+                    { text: "New Padel Clubs Revenue Streams", url: "https://www.nxpadel.com/en/blog/new-padel-clubs-revenue-streams" }
+                ]
+            },
+            revenuePerEvent: {
+                title: "Revenue per Event (€2,000)",
+                explanation: "Average revenue per tournament or corporate event including entry fees, sponsorships, F&B sales, and equipment rentals.",
+                sources: [
+                    { text: "Padel Center Hosting Income", url: "https://dojobusiness.com/blogs/news/padel-center-hosting-income" },
+                    { text: "New Padel Clubs Revenue Analysis", url: "https://www.nxpadel.com/en/blog/new-padel-clubs-revenue-streams" }
+                ]
+            },
+            financingPercentage: {
+                title: "Financing Percentage (60%)",
+                explanation: "Standard commercial loan coverage for sports facility development. Banks typically finance 60-80% of total project cost.",
+                sources: [
+                    { text: "How to Finance Your Padel Court", url: "https://www.mejorset.com/eng/blog/how-to-finance-your-padel-court-or-club-expert-guide-by-mejorset" },
+                    { text: "Padel Club Construction Financing", url: "https://www.mejorset.com/us-eng/blog/how-to-finance-your-padel-club-construction" }
+                ]
+            },
+            interestRate: {
+                title: "Interest Rate (4%)",
+                explanation: "Current commercial lending rates in Cyprus for sports facility development, based on ECB rates and local bank margins.",
+                sources: [
+                    { text: "Cyprus Business Financing", url: "https://www.mejorset.com/eng/blog/how-to-finance-your-padel-court-or-club-expert-guide-by-mejorset" },
+                    { text: "Commercial Loan Rates Cyprus", url: "https://www.mejorset.com/us-eng/blog/how-to-finance-your-padel-club-construction" }
+                ]
+            },
+            loanTerm: {
+                title: "Loan Term (5 years)",
+                explanation: "Standard commercial loan term for sports facility investment, balancing monthly payments with reasonable payback period.",
+                sources: [
+                    { text: "Padel Court Financing Guide", url: "https://www.mejorset.com/eng/blog/how-to-finance-your-padel-court-or-club-expert-guide-by-mejorset" },
+                    { text: "Sports Facility Loan Terms", url: "https://www.mejorset.com/us-eng/blog/how-to-finance-your-padel-club-construction" }
+                ]
+            },
+            projectPeriod: {
+                title: "Project Period (5 years)",
+                explanation: "Analysis period for ROI calculations and business viability assessment, standard for sports facility investment evaluation.",
+                sources: [
+                    { text: "Padel Court Profitability Analysis", url: "https://www.porticosport.com/news/padel-court-profitability" },
+                    { text: "Business Plan for Padel", url: "https://www.padelcreations.com/business-plan-for-padel/" }
+                ]
+            }
+        };
+
+        // Modal functionality
+        function showInfoModal(parameterId) {
+            const sourceInfo = parameterSources[parameterId];
+            if (!sourceInfo) return;
+
+            const modal = document.getElementById('info-modal');
+            const title = document.getElementById('modal-title');
+            const explanation = document.getElementById('modal-explanation');
+            const sourcesList = document.getElementById('modal-sources');
+
+            title.textContent = sourceInfo.title;
+            explanation.textContent = sourceInfo.explanation;
+
+            sourcesList.innerHTML = sourceInfo.sources.map(source => 
+                `<li><a href="${source.url}" target="_blank" rel="noopener noreferrer">${source.text}</a></li>`
+            ).join('');
+
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeInfoModal() {
+            const modal = document.getElementById('info-modal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking overlay
+        document.addEventListener('click', function(event) {
+            if (event.target.id === 'info-modal') {
+                closeInfoModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeInfoModal();
+            }
+        });
+
+        // Update calculation breakdown
+        function updateCalculationBreakdown(results) {
+            if (document.getElementById('paramCourts')) {
+                document.getElementById('paramCourts').textContent = results.params.numCourts;
+                document.getElementById('paramRate').textContent = formatCurrency(results.params.hourlyRate);
+                document.getElementById('paramOccupancy').textContent = (results.params.occupancyRate * 100).toFixed(0) + '%';
+                document.getElementById('paramHours').textContent = results.params.hoursPerDay;
+                document.getElementById('paramDays').textContent = results.params.daysPerYear;
+                
+                // Update formulas
+                document.getElementById('formulaCourtRevenue').textContent = 
+                    `${results.params.numCourts} courts × ${formatCurrency(results.params.hourlyRate)}/hr × ${results.params.hoursPerDay} hrs × ${results.params.daysPerYear} days × ${(results.params.occupancyRate * 100).toFixed(0)}% = ${formatCurrency(results.courtRentalRevenue)}`;
+                document.getElementById('formulaProShop').textContent = formatCurrency(results.params.proShopRevenue);
+                document.getElementById('formulaFB').textContent = formatCurrency(results.params.fbRevenue);
+                document.getElementById('formulaEvents').textContent = 
+                    `${results.params.eventsPerYear} events × ${formatCurrency(results.params.revenuePerEvent)} = ${formatCurrency(results.eventRevenue)}`;
+                document.getElementById('formulaTotalRevenue').textContent = formatCurrency(results.totalRevenue);
+                
+                document.getElementById('formulaLandRental').textContent = formatCurrency(results.params.landRental);
+                document.getElementById('formulaMaintenance').textContent = 
+                    `${results.params.numCourts} courts × ${formatCurrency(results.params.maintenancePerCourt)} = ${formatCurrency(results.totalMaintenance)}`;
+                
+                const salaryBreakdown = `${formatCurrency(results.params.managerSalary)} + ${formatCurrency(results.params.instructorSalary)} + ${formatCurrency(results.params.receptionSalary)} + ${formatCurrency(results.params.maintenanceStaffSalary)} = ${formatCurrency(results.totalSalaries)}`;
+                document.getElementById('formulaSalaries').textContent = salaryBreakdown;
+                
+                const utilitiesBreakdown = `${formatCurrency(results.params.waterCost)} + ${formatCurrency(results.params.electricityCost)} = ${formatCurrency(results.params.waterCost + results.params.electricityCost)}`;
+                document.getElementById('formulaUtilities').textContent = utilitiesBreakdown;
+                document.getElementById('formulaTotalCosts').textContent = formatCurrency(results.totalExpenses);
+                
+                document.getElementById('formulaNetProfit').textContent = 
+                    `${formatCurrency(results.totalRevenue)} - ${formatCurrency(results.totalExpenses)} = ${formatCurrency(results.netProfit)}`;
+                document.getElementById('formulaTotalInvestment').textContent = formatCurrency(results.totalInvestment);
+                document.getElementById('formulaProjectROI').textContent = 
+                    `(${formatCurrency(results.netProfit)} ÷ ${formatCurrency(results.totalInvestment)}) × 100 = ${results.annualROI.toFixed(1)}%`;
+                
+                document.getElementById('formulaLoanAmount').textContent = 
+                    `${formatCurrency(results.totalInvestment)} × ${(results.params.financingPercentage * 100).toFixed(0)}% = ${formatCurrency(results.loanAmount)}`;
+                document.getElementById('formulaEquityInvestment').textContent = 
+                    `${formatCurrency(results.totalInvestment)} × ${((1 - results.params.financingPercentage) * 100).toFixed(0)}% = ${formatCurrency(results.equityInvestment)}`;
+                document.getElementById('formulaDebtService').textContent = 
+                    `${formatCurrency(results.annualDebtService)} (${results.params.loanTerm}-year loan at ${(results.params.interestRate * 100).toFixed(1)}%)`;
+                document.getElementById('formulaCashFlow').textContent = 
+                    `${formatCurrency(results.netProfit)} - ${formatCurrency(results.annualDebtService)} = ${formatCurrency(results.netCashFlow)}`;
+                document.getElementById('formulaEquityROI').textContent = 
+                    `(${formatCurrency(results.netCashFlow)} ÷ ${formatCurrency(results.equityInvestment)}) × 100 = ${results.annualEquityROI.toFixed(1)}%`;
+            }
+        }
+
+        // Clear localStorage and reset to defaults
+        function clearLocalStorageAndReset() {
+            if (confirm('This will reset all parameters to default values and clear any saved settings. Are you sure?')) {
+                localStorage.removeItem('padelModelParams');
+                localStorage.removeItem('padelModelScenarios');
+                
+                const defaults = {
+                    numCourts: 8, costPerCourt: 35000, infrastructureCost: 100000, additionalFacilities: 200000,
+                    hourlyRate: 28, occupancyRate: 50, hoursPerDay: 12, daysPerYear: 360,
+                    proShopRevenue: 15000, fbRevenue: 20000, eventsPerYear: 6, revenuePerEvent: 2000,
+                    landRental: 120000, maintenancePerCourt: 2200, managerSalary: 42000, instructorSalary: 19800,
+                    receptionSalary: 14400, maintenanceStaffSalary: 16800, waterCost: 8000, electricityCost: 15000,
+                    vatRate: 5, playtomicCommission: 4,
+                    financingPercentage: 60, interestRate: 4, loanTerm: 5, projectPeriod: 5, developmentMonths: 12,
+                    developmentInterest: 'capitalized'
+                };
+                
+                Object.keys(defaults).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        if (element.type === 'range') {
+                            element.value = defaults[key];
+                            const rangeValue = element.parentNode.querySelector('.range-value');
+                            if (rangeValue) {
+                                if (key === 'occupancyRate') rangeValue.textContent = defaults[key] + '%';
+                                else if (key === 'hourlyRate') rangeValue.textContent = '€' + defaults[key];
+                                else if (key === 'interestRate') rangeValue.textContent = defaults[key] + '%';
+                                else rangeValue.textContent = defaults[key];
+                            }
+                        } else if (element.classList && element.classList.contains('amount-input')) {
+                            element.value = formatNumberInput(defaults[key]);
+                        } else {
+                            element.value = defaults[key];
+                        }
+                    }
+                });
+                
+                updateAll();
+                showToast('All settings have been reset to default values!', 'success');
+            }
+        }
     </script>
+
+    <!-- Info Modal -->
+    <div id="info-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title"></h3>
+                <button class="modal-close" onclick="closeInfoModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <h4>Explanation</h4>
+                    <p id="modal-explanation"></p>
+                </div>
+                <div class="modal-section">
+                    <h4>Sources</h4>
+                    <ul class="sources-list" id="modal-sources"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
