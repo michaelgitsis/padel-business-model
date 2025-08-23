@@ -2604,7 +2604,7 @@
                         </thead>
                         <tbody id="revenueDetails">
                             <tr>
-                                <td>Court Rentals</td>
+                                <td><strong>Gross Court Bookings</strong></td>
                                 <td>8 courts × €28/hr × 12hrs × 360 days × 50%</td>
                                 <td class="number">€483,840</td>
                             </tr>
@@ -4133,7 +4133,7 @@
 
         // Format currency
         function formatCurrency(value) {
-            return '€' + value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            return '\u20ac' + value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
         // Format number with thousand separators
@@ -4232,11 +4232,25 @@
             // Revenue table
             document.getElementById('revenueDetails').innerHTML = `
                 <tr>
-                    <td>Court Rentals</td>
+                    <td><strong>Gross Court Bookings</strong></td>
                     <td>${results.params.numCourts} courts × ${formatCurrency(results.params.hourlyRate)}/hr × ${results.params.hoursPerDay}hrs × ${results.params.daysPerYear} days × ${(results.params.occupancyRate * 100).toFixed(0)}%</td>
-                    <td class="number">${formatCurrency(results.courtRentalRevenue)}</td>
+                    <td class="number">Gross: ${formatCurrency(results.grossCourtRevenue)} | VAT: -${formatCurrency(results.vatAmount)} | Playtomic: -${formatCurrency(results.playtomicCommissionAmount)} = ${formatCurrency(results.netCourtRevenue)}</td>
                 </tr>
-                <tr>
+                <tr style="color: #e74c3c;">
+                    <td>&nbsp;&nbsp;Less: VAT (${results.params.vatRate}%)</td>
+                    <td>Tax to remit</td>
+                    <td class="number">(${formatCurrency(results.vatAmount)})</td>
+                </tr>
+                <tr style="color: #e74c3c;">
+                    <td>&nbsp;&nbsp;Less: Playtomic Commission (${results.params.playtomicCommission}%)</td>
+                    <td>Platform fee on gross</td>
+                    <td class="number">(${formatCurrency(results.playtomicCommissionAmount)})</td>
+                </tr>
+                <tr style="background-color: #f8f9fa; font-weight: bold;">
+                    <td><strong>Net Court Revenue</strong></td>
+                    <td>After VAT & fees</td>
+                    <td class="number"><strong>${formatCurrency(results.netCourtRevenue)}</strong></td>
+                </tr>                <tr>
                     <td>Pro Shop</td>
                     <td>Annual estimate</td>
                     <td class="number">${formatCurrency(results.params.proShopRevenue)}</td>
@@ -4469,7 +4483,12 @@
             
             const additionalFacilities = parseFloat(document.getElementById('additionalFacilities').value);
             const totalInvestment = (numCourts * costPerCourt) + infrastructureCost + additionalFacilities;
-            const courtRevenue = numCourts * price * hoursPerDay * daysPerYear * (occupancy / 100);
+            const grossCourtRevenue = numCourts * price * hoursPerDay * daysPerYear * (occupancy / 100);
+            const vatRate = parseFloat(document.getElementById("vatRate").value) || 5;
+            const playtomicRate = parseFloat(document.getElementById("playtomicCommission").value) || 4;
+            const vatAmount = grossCourtRevenue * (vatRate / (100 + vatRate));
+            const playtomicAmount = grossCourtRevenue * (playtomicRate / 100);
+            const courtRevenue = grossCourtRevenue - vatAmount - playtomicAmount;
             const totalRevenue = courtRevenue + additionalRevenue;
             // Scale utilities with number of courts (60% fixed, 40% per court)
             const baseWaterCost = parseFloat(document.getElementById('waterCost').value);
@@ -6239,7 +6258,20 @@ Best regards`;
                 explanation: "LED court lighting, facility lighting, HVAC for indoor areas, and equipment operation based on Cyprus commercial electricity rates.",
                 sources: [
                     { text: "Cyprus Utility Costs", url: "https://dojobusiness.com/blogs/news/padel-center-budget-utilities" },
-                    { text: "Padel Center Budget Planning", url: "https://www.reddit.com/r/padel/comments/14ox30e/thinking_about_padel_club_expenses_does_anyone/" }
+            vatRate: {
+                title: "VAT Rate (%)",
+                explanation: "Value Added Tax rate in Cyprus. 5% reduced rate applies to licensed sports facilities for admission and booking fees. 19% standard rate applies if no sports operation license is held.",
+                sources: [
+                    { text: "Cyprus VAT Rates", url: "https://www.vatlive.com/country/cyprus/vat-rates/" }
+                ]
+            },
+            playtomicCommission: {
+                title: "Playtomic Commission (%)",
+                explanation: "Platform booking commission charged by Playtomic on all court reservations. Industry standard ranges from 2-10%, typically 4% for sports facilities.",
+                sources: [
+                    { text: "Playtomic for Business", url: "https://playtomic.io/business" }
+                ]
+            },                    { text: "Padel Center Budget Planning", url: "https://www.reddit.com/r/padel/comments/14ox30e/thinking_about_padel_club_expenses_does_anyone/" }
                 ]
             },
             managerSalary: {
@@ -6392,7 +6424,7 @@ Best regards`;
                 
                 // Update formulas
                 document.getElementById('formulaCourtRevenue').textContent = 
-                    `${results.params.numCourts} courts × ${formatCurrency(results.params.hourlyRate)}/hr × ${results.params.hoursPerDay} hrs × ${results.params.daysPerYear} days × ${(results.params.occupancyRate * 100).toFixed(0)}% = ${formatCurrency(results.courtRentalRevenue)}`;
+                    `${results.params.numCourts} courts × ${formatCurrency(results.params.hourlyRate)}/hr × ${results.params.hoursPerDay} hrs × ${results.params.daysPerYear} days × ${(results.params.occupancyRate * 100).toFixed(0)}% = Gross: ${formatCurrency(results.grossCourtRevenue)} | VAT: -${formatCurrency(results.vatAmount)} | Playtomic: -${formatCurrency(results.playtomicCommissionAmount)} = ${formatCurrency(results.netCourtRevenue)}`;
                 document.getElementById('formulaProShop').textContent = formatCurrency(results.params.proShopRevenue);
                 document.getElementById('formulaFB').textContent = formatCurrency(results.params.fbRevenue);
                 document.getElementById('formulaEvents').textContent = 
@@ -6470,6 +6502,18 @@ Best regards`;
                 showToast('All settings have been reset to default values!', 'success');
             }
         }
+
+        // Initialize the application when DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure all functions are available globally
+            window.switchTab = switchTab;
+            window.toggleTheme = toggleTheme;
+            window.closeInfoModal = closeInfoModal;
+            window.clearLocalStorageAndReset = clearLocalStorageAndReset;
+            
+            // Initialize the application
+            initializeInputs();
+        });
     </script>
 
     <!-- Info Modal -->
