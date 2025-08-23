@@ -1,0 +1,2516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Padeliko - Business Financial Model</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --primary-light: #6366f1;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-card: #ffffff;
+            --text: #111827;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --border: #e5e7eb;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #1e293b;
+            --text: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        .app-container {
+            max-width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .header-title i {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-secondary);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-icon {
+            padding: 0.5rem;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab-nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            padding: 0 1.5rem;
+        }
+
+        .tab-btn {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--text);
+            background: var(--bg-secondary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-btn i {
+            font-size: 1rem;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            flex: 1;
+            padding: 2rem 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dashboard Tab - Key Metrics */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .metric-card.positive .metric-value { color: var(--success); }
+        .metric-card.negative .metric-value { color: var(--danger); }
+        .metric-card.warning .metric-value { color: var(--warning); }
+
+        .metric-change {
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        /* Parameters Tab */
+        .parameters-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .parameter-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+
+        .parameter-section h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .parameter-section h3 i {
+            color: var(--primary);
+        }
+
+        .parameter {
+            margin-bottom: 1.5rem;
+        }
+
+        .parameter:last-child {
+            margin-bottom: 0;
+        }
+
+        .parameter label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .parameter input[type="number"],
+        .parameter input[type="range"],
+        .parameter input.amount-input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .parameter input[type="number"]:focus,
+        .parameter input.amount-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .range-container input[type="range"] {
+            flex: 1;
+            height: 4px;
+            background: var(--border);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .range-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .range-container input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .range-value {
+            min-width: 60px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Analytics Tab */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+
+        .chart-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Report Tab */
+        .report-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .report-section h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .report-section h3 i {
+            color: var(--primary);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .data-table td {
+            font-size: 0.875rem;
+            color: var(--text);
+        }
+
+        .data-table td.number {
+            text-align: left;
+            font-family: 'SF Mono', 'Monaco', monospace;
+            font-weight: 500;
+        }
+
+        .data-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Scenarios Tab */
+        .scenarios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .scenario-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .scenario-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .scenario-card.active {
+            border-color: var(--primary);
+            background: var(--bg-secondary);
+        }
+
+        .scenario-header {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .scenario-header i {
+            color: var(--primary);
+        }
+
+        .scenario-metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+
+        .scenario-metric:last-child {
+            border-bottom: none;
+        }
+
+        .scenario-metric-label {
+            color: var(--text-secondary);
+        }
+
+        .scenario-metric-value {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* Summary Section */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            text-align: center;
+        }
+
+        .summary-card .label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-card .value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: var(--shadow-lg);
+            transform: translateX(400px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast.success i { color: var(--success); }
+        .toast.error i { color: var(--danger); }
+
+        /* Sensitivity Analysis Styles */
+        .sensitivity-container {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .sensitivity-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .sensitivity-section h3 {
+            color: var(--text);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sensitivity-section h3 i {
+            color: var(--primary);
+        }
+
+        .sensitivity-info {
+            margin-bottom: 1.5rem;
+        }
+
+        .sensitivity-info p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        .sensitivity-table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .sensitivity-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            background: var(--bg-primary);
+        }
+
+        .sensitivity-table th {
+            background: var(--bg-secondary);
+            color: var(--text);
+            padding: 0.75rem;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .sensitivity-table th.corner-cell {
+            background: var(--primary);
+            color: white;
+            font-size: 0.75rem;
+        }
+
+        .sensitivity-table td {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .sensitivity-table td:hover {
+            box-shadow: inset 0 0 0 2px var(--primary);
+            z-index: 1;
+        }
+
+        .sensitivity-table td.current-params {
+            box-shadow: inset 0 0 0 3px var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .sensitivity-table .row-header {
+            background: var(--bg-secondary);
+            color: var(--text);
+            font-weight: 600;
+            cursor: default;
+        }
+
+        .sensitivity-table .row-header:hover {
+            box-shadow: none;
+        }
+
+        /* Color coding for profit levels */
+        .profit-low { background-color: #ffebee; color: #c62828; }
+        .profit-medium { background-color: #fff3e0; color: #ef6c00; }
+        .profit-high { background-color: #e8f5e8; color: #2e7d32; }
+
+        /* Color coding for payback periods */
+        .payback-slow { background-color: #ffebee; color: #c62828; }
+        .payback-moderate { background-color: #fff3e0; color: #ef6c00; }
+        .payback-fast { background-color: #e8f5e8; color: #2e7d32; }
+
+        /* Dark theme adjustments */
+        [data-theme="dark"] .profit-low { background-color: #3d1f1f; color: #ef9a9a; }
+        [data-theme="dark"] .profit-medium { background-color: #3d2f1f; color: #ffcc02; }
+        [data-theme="dark"] .profit-high { background-color: #1f3d1f; color: #a5d6a7; }
+        [data-theme="dark"] .payback-slow { background-color: #3d1f1f; color: #ef9a9a; }
+        [data-theme="dark"] .payback-moderate { background-color: #3d2f1f; color: #ffcc02; }
+        [data-theme="dark"] .payback-fast { background-color: #1f3d1f; color: #a5d6a7; }
+
+        .sensitivity-legend {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+        }
+
+        .legend-red { background-color: #ffebee; }
+        .legend-yellow { background-color: #fff3e0; }
+        .legend-green { background-color: #e8f5e8; }
+
+        [data-theme="dark"] .legend-red { background-color: #3d1f1f; }
+        [data-theme="dark"] .legend-yellow { background-color: #3d2f1f; }
+        [data-theme="dark"] .legend-green { background-color: #1f3d1f; }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-actions {
+                justify-content: space-between;
+            }
+
+            .tab-nav-inner {
+                padding: 0;
+            }
+
+            .tab-btn {
+                padding: 1rem;
+                font-size: 0.75rem;
+            }
+
+            .tab-btn i {
+                font-size: 1.25rem;
+            }
+
+            .tab-btn span {
+                display: none;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .parameters-container {
+                grid-template-columns: 1fr;
+            }
+
+            /* Two-column layout for amount inputs on mobile */
+            .parameter-section {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .parameter-section .parameter-inputs {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+                margin-top: 0.5rem;
+            }
+
+            /* Special layout for investment section with 3 items */
+            .parameter-section:first-of-type .parameter-inputs {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .parameter-section:first-of-type .parameter-inputs .parameter:nth-child(3) {
+                grid-column: 1 / -1;
+            }
+
+            .parameter-section .parameter.full-width {
+                grid-column: 1 / -1;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .scenarios-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .data-table {
+                font-size: 0.75rem;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 0.5rem;
+            }
+
+            .toast {
+                right: 1rem;
+                left: 1rem;
+                transform: translateY(100px);
+            }
+
+            .toast.show {
+                transform: translateY(0);
+            }
+
+            /* Sensitivity Tables Mobile */
+            .sensitivity-container {
+                gap: 2rem;
+            }
+
+            .sensitivity-section {
+                padding: 1rem;
+            }
+
+            .sensitivity-table {
+                font-size: 0.75rem;
+            }
+
+            .sensitivity-table th,
+            .sensitivity-table td {
+                padding: 0.5rem 0.25rem;
+            }
+
+            .sensitivity-legend {
+                gap: 1rem;
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .header-actions,
+            .tab-nav {
+                display: none;
+            }
+
+            .tab-panel {
+                display: block !important;
+                page-break-after: always;
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-title">
+                    <i class="fas fa-chart-line"></i>
+                    <h1>Padeliko Business Model</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="saveSettings()">
+                        <i class="fas fa-save"></i>
+                        <span>Save</span>
+                    </button>
+                    <button class="btn" onclick="loadSettings()">
+                        <i class="fas fa-upload"></i>
+                        <span>Load</span>
+                    </button>
+                    <button class="btn" onclick="exportData()">
+                        <i class="fas fa-download"></i>
+                        <span>Export</span>
+                    </button>
+                    <button class="btn" onclick="resetSettings()">
+                        <i class="fas fa-undo"></i>
+                        <span>Reset</span>
+                    </button>
+                    <button class="btn btn-icon" onclick="toggleTheme()">
+                        <i class="fas fa-moon" id="themeIcon"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="tab-nav">
+            <div class="tab-nav-inner">
+                <button class="tab-btn active" onclick="switchTab('dashboard')">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('parameters')">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Parameters</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('analytics')">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('report')">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Report</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('scenarios')">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Scenarios</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('sensitivity')">
+                    <i class="fas fa-table"></i>
+                    <span>Sensitivity</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Tab Content -->
+        <main class="tab-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-panel active">
+                <h2 style="margin-bottom: 2rem; color: var(--text);">Financial Overview</h2>
+                
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <div class="label">Total Investment</div>
+                        <div class="value" id="summaryInvestment">€380,000</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="label">Annual Profit</div>
+                        <div class="value" id="summaryProfit">€288,240</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="label">ROI</div>
+                        <div class="value" id="summaryROI">75.9%</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="label">Payback Period</div>
+                        <div class="value" id="summaryPayback">1.3 years</div>
+                    </div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Total Investment Required</div>
+                        <div class="metric-value" id="totalInvestment">€380,000</div>
+                        <div class="metric-change">Courts + Infrastructure</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">Annual Revenue</div>
+                        <div class="metric-value" id="annualRevenue">€518,840</div>
+                        <div class="metric-change">All revenue streams</div>
+                    </div>
+                    <div class="metric-card negative">
+                        <div class="metric-label">Annual Operating Costs</div>
+                        <div class="metric-value" id="annualCosts">€230,600</div>
+                        <div class="metric-change">Fixed + Variable costs</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">Net Annual Profit</div>
+                        <div class="metric-value" id="netProfit">€288,240</div>
+                        <div class="metric-change">Revenue - Costs</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">Return on Investment</div>
+                        <div class="metric-value" id="roi">75.9%</div>
+                        <div class="metric-change">Annual return</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Payback Period</div>
+                        <div class="metric-value" id="paybackPeriod">1.3 years</div>
+                        <div class="metric-change">Time to recover investment</div>
+                    </div>
+                    <div class="metric-card warning">
+                        <div class="metric-label">Break-even Occupancy</div>
+                        <div class="metric-value" id="breakEvenOccupancy">20.2%</div>
+                        <div class="metric-change">Minimum required</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">5-Year Total Profit</div>
+                        <div class="metric-value" id="fiveYearProfit">€1,441,200</div>
+                        <div class="metric-change">Cumulative profit</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parameters Tab -->
+            <div id="parameters-tab" class="tab-panel">
+                <h2 style="margin-bottom: 2rem; color: var(--text);">Business Parameters</h2>
+                
+                <div class="parameters-container">
+                    <!-- Investment Parameters -->
+                    <div class="parameter-section">
+                        <h3><i class="fas fa-building"></i> Investment</h3>
+                        <div class="parameter full-width">
+                            <label>Number of Courts</label>
+                            <div class="range-container">
+                                <input type="range" id="numCourts" min="1" max="12" value="8" step="1">
+                                <span class="range-value">8</span>
+                            </div>
+                        </div>
+                        <div class="parameter-inputs">
+                            <div class="parameter">
+                                <label>Cost per Court (€)</label>
+                                <input type="text" id="costPerCourt" value="35,000" class="amount-input" inputmode="numeric">
+                            </div>
+                            <div class="parameter">
+                                <label>Infrastructure Cost (€)</label>
+                                <input type="text" id="infrastructureCost" value="100,000" class="amount-input" inputmode="numeric">
+                            </div>
+                            <div class="parameter">
+                                <label>Additional Facilities (F&B + Pro Shop) (€)</label>
+                                <input type="text" id="additionalFacilities" value="100,000" class="amount-input" inputmode="numeric">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Parameters -->
+                    <div class="parameter-section">
+                        <h3><i class="fas fa-euro-sign"></i> Revenue Model</h3>
+                        <div class="parameter full-width">
+                            <label>Hourly Rate (€)</label>
+                            <div class="range-container">
+                                <input type="range" id="hourlyRate" min="20" max="40" value="28" step="1">
+                                <span class="range-value">€28</span>
+                            </div>
+                        </div>
+                        <div class="parameter full-width">
+                            <label>Occupancy Rate (%)</label>
+                            <div class="range-container">
+                                <input type="range" id="occupancyRate" min="20" max="90" value="50" step="5">
+                                <span class="range-value">50%</span>
+                            </div>
+                        </div>
+                        <div class="parameter full-width">
+                            <label>Operating Hours/Day</label>
+                            <div class="range-container">
+                                <input type="range" id="hoursPerDay" min="8" max="16" value="12" step="1">
+                                <span class="range-value">12h</span>
+                            </div>
+                        </div>
+                        <div class="parameter-inputs">
+                            <div class="parameter">
+                                <label>Operating Days/Year</label>
+                                <input type="number" id="daysPerYear" min="300" max="365" value="360" step="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Operating Costs -->
+                    <div class="parameter-section">
+                        <h3><i class="fas fa-receipt"></i> Operating Costs</h3>
+                        <div class="parameter-inputs">
+                            <div class="parameter">
+                                <label>Annual Land Rental (€)</label>
+                                <input type="text" id="landRental" value="120,000" class="amount-input" inputmode="numeric">
+                            </div>
+                            <div class="parameter">
+                                <label>Maintenance per Court/Year (€)</label>
+                                <input type="text" id="maintenancePerCourt" value="2,200" class="amount-input" inputmode="numeric">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Staff Salaries -->
+                    <div class="parameter-section">
+                        <h3><i class="fas fa-users"></i> Staff Salaries</h3>
+                        <div class="parameter-inputs">
+                            <div class="parameter">
+                                <label>Manager Salary (€/year)</label>
+                                <input type="text" id="managerSalary" value="42,000" class="amount-input" inputmode="numeric">
+                            </div>
+                            <div class="parameter">
+                                <label>Instructor Salary (€/year)</label>
+                                <input type="text" id="instructorSalary" value="19,800" class="amount-input" inputmode="numeric">
+                            </div>
+                            <div class="parameter">
+                                <label>Reception Staff (€/year)</label>
+                                <input type="text" id="receptionSalary" value="14,400" class="amount-input" inputmode="numeric">
+                            </div>
+                            <div class="parameter">
+                                <label>Maintenance Staff (€/year)</label>
+                                <input type="text" id="maintenanceStaffSalary" value="16,800" class="amount-input" inputmode="numeric">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Revenue -->
+                    <div class="parameter-section">
+                        <h3><i class="fas fa-plus-circle"></i> Additional Revenue</h3>
+                        <div class="parameter-inputs">
+                            <div class="parameter">
+                                <label>Pro Shop Annual (€)</label>
+                                <input type="text" id="proShopRevenue" value="15,000" class="amount-input" inputmode="numeric">
+                            </div>
+                            <div class="parameter">
+                                <label>F&B Annual (€)</label>
+                                <input type="text" id="fbRevenue" value="20,000" class="amount-input" inputmode="numeric">
+                            </div>
+                            <div class="parameter">
+                                <label>Events per Year</label>
+                                <input type="number" id="eventsPerYear" min="0" max="24" value="6" step="1">
+                            </div>
+                            <div class="parameter">
+                                <label>Revenue per Event (€)</label>
+                                <input type="text" id="revenuePerEvent" value="2,000" class="amount-input" inputmode="numeric">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analytics-tab" class="tab-panel">
+                <h2 style="margin-bottom: 2rem; color: var(--text);">Business Analytics</h2>
+                
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Occupancy vs Annual Profit</h3>
+                        <div class="chart-container">
+                            <canvas id="occupancyChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Price Sensitivity (ROI)</h3>
+                        <div class="chart-container">
+                            <canvas id="priceChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Revenue Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="revenueBreakdownChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>5-Year Cumulative Profit</h3>
+                        <div class="chart-container">
+                            <canvas id="projectionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Tab -->
+            <div id="report-tab" class="tab-panel">
+                <h2 style="margin-bottom: 2rem; color: var(--text);">Financial Report</h2>
+                
+                <div class="report-section">
+                    <h3><i class="fas fa-coins"></i> Investment Breakdown</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Quantity</th>
+                                <th>Unit Cost</th>
+                                <th>Total Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody id="investmentDetails">
+                            <tr>
+                                <td>Padel Courts</td>
+                                <td>8</td>
+                                <td class="number">€35,000</td>
+                                <td class="number">€280,000</td>
+                            </tr>
+                            <tr>
+                                <td>Infrastructure</td>
+                                <td>1</td>
+                                <td class="number">€100,000</td>
+                                <td class="number">€100,000</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3">Total Investment</th>
+                                <th class="number" id="investmentTotal">€380,000</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="report-section">
+                    <h3><i class="fas fa-chart-line"></i> Revenue Streams</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Revenue Source</th>
+                                <th>Calculation</th>
+                                <th>Annual Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="revenueDetails">
+                            <tr>
+                                <td>Court Rentals</td>
+                                <td>8 courts × €28/hr × 12hrs × 360 days × 50%</td>
+                                <td class="number">€483,840</td>
+                            </tr>
+                            <tr>
+                                <td>Pro Shop</td>
+                                <td>Annual estimate</td>
+                                <td class="number">€15,000</td>
+                            </tr>
+                            <tr>
+                                <td>Food & Beverage</td>
+                                <td>Annual estimate</td>
+                                <td class="number">€20,000</td>
+                            </tr>
+                            <tr>
+                                <td>Events</td>
+                                <td>6 events × €2,000</td>
+                                <td class="number">€12,000</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="2">Total Annual Revenue</th>
+                                <th class="number" id="revenueTotal">€530,840</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="report-section">
+                    <h3><i class="fas fa-money-check-alt"></i> Operating Expenses</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Expense Category</th>
+                                <th>Details</th>
+                                <th>Annual Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expenseDetails">
+                            <tr>
+                                <td>Land Rental</td>
+                                <td>Annual lease</td>
+                                <td class="number">€120,000</td>
+                            </tr>
+                            <tr>
+                                <td>Court Maintenance</td>
+                                <td>8 courts × €2,200</td>
+                                <td class="number">€17,600</td>
+                            </tr>
+                            <tr>
+                                <td>Manager Salary</td>
+                                <td>Annual</td>
+                                <td class="number">€42,000</td>
+                            </tr>
+                            <tr>
+                                <td>Instructor Salary</td>
+                                <td>Annual</td>
+                                <td class="number">€19,800</td>
+                            </tr>
+                            <tr>
+                                <td>Reception Staff</td>
+                                <td>Annual</td>
+                                <td class="number">€14,400</td>
+                            </tr>
+                            <tr>
+                                <td>Maintenance Staff</td>
+                                <td>Annual</td>
+                                <td class="number">€16,800</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="2">Total Annual Expenses</th>
+                                <th class="number" id="expenseTotal">€230,600</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="report-section">
+                    <h3><i class="fas fa-calendar-alt"></i> 5-Year Projection</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Revenue</th>
+                                <th>Expenses</th>
+                                <th>Net Profit</th>
+                                <th>Cumulative</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectionDetails">
+                            <tr>
+                                <td>Year 1</td>
+                                <td class="number">€530,840</td>
+                                <td class="number">€230,600</td>
+                                <td class="number">€300,240</td>
+                                <td class="number">€300,240</td>
+                            </tr>
+                            <tr>
+                                <td>Year 2</td>
+                                <td class="number">€530,840</td>
+                                <td class="number">€230,600</td>
+                                <td class="number">€300,240</td>
+                                <td class="number">€600,480</td>
+                            </tr>
+                            <tr>
+                                <td>Year 3</td>
+                                <td class="number">€530,840</td>
+                                <td class="number">€230,600</td>
+                                <td class="number">€300,240</td>
+                                <td class="number">€900,720</td>
+                            </tr>
+                            <tr>
+                                <td>Year 4</td>
+                                <td class="number">€530,840</td>
+                                <td class="number">€230,600</td>
+                                <td class="number">€300,240</td>
+                                <td class="number">€1,200,960</td>
+                            </tr>
+                            <tr>
+                                <td>Year 5</td>
+                                <td class="number">€530,840</td>
+                                <td class="number">€230,600</td>
+                                <td class="number">€300,240</td>
+                                <td class="number">€1,501,200</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Scenarios Tab -->
+            <div id="scenarios-tab" class="tab-panel">
+                <h2 style="margin-bottom: 2rem; color: var(--text);">Scenario Analysis</h2>
+                
+                <div class="scenarios-grid">
+                    <div class="scenario-card" onclick="loadScenario('conservative')">
+                        <div class="scenario-header">
+                            <i class="fas fa-shield-alt"></i>
+                            Conservative
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">Occupancy Rate</span>
+                            <span class="scenario-metric-value">40%</span>
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">Hourly Rate</span>
+                            <span class="scenario-metric-value">€24</span>
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">Annual Profit</span>
+                            <span class="scenario-metric-value" id="conservativeProfit">€76,176</span>
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">ROI</span>
+                            <span class="scenario-metric-value" id="conservativeROI">20.0%</span>
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">Payback Period</span>
+                            <span class="scenario-metric-value" id="conservativePayback">5.0 years</span>
+                        </div>
+                    </div>
+
+                    <div class="scenario-card" onclick="loadScenario('base')">
+                        <div class="scenario-header">
+                            <i class="fas fa-balance-scale"></i>
+                            Base Case
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">Occupancy Rate</span>
+                            <span class="scenario-metric-value">50%</span>
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">Hourly Rate</span>
+                            <span class="scenario-metric-value">€28</span>
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">Annual Profit</span>
+                            <span class="scenario-metric-value" id="baseProfit">€288,240</span>
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">ROI</span>
+                            <span class="scenario-metric-value" id="baseROI">75.9%</span>
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">Payback Period</span>
+                            <span class="scenario-metric-value" id="basePayback">1.3 years</span>
+                        </div>
+                    </div>
+
+                    <div class="scenario-card" onclick="loadScenario('optimistic')">
+                        <div class="scenario-header">
+                            <i class="fas fa-rocket"></i>
+                            Optimistic
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">Occupancy Rate</span>
+                            <span class="scenario-metric-value">70%</span>
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">Hourly Rate</span>
+                            <span class="scenario-metric-value">€32</span>
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">Annual Profit</span>
+                            <span class="scenario-metric-value" id="optimisticProfit">€602,544</span>
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">ROI</span>
+                            <span class="scenario-metric-value" id="optimisticROI">158.6%</span>
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">Payback Period</span>
+                            <span class="scenario-metric-value" id="optimisticPayback">0.6 years</span>
+                        </div>
+                    </div>
+
+                    <div class="scenario-card active">
+                        <div class="scenario-header">
+                            <i class="fas fa-user-cog"></i>
+                            Current Settings
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">Occupancy Rate</span>
+                            <span class="scenario-metric-value" id="currentOccupancy">50%</span>
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">Hourly Rate</span>
+                            <span class="scenario-metric-value" id="currentPrice">€28</span>
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">Annual Profit</span>
+                            <span class="scenario-metric-value" id="currentProfit">€288,240</span>
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">ROI</span>
+                            <span class="scenario-metric-value" id="currentROI">75.9%</span>
+                        </div>
+                        <div class="scenario-metric">
+                            <span class="scenario-metric-label">Payback Period</span>
+                            <span class="scenario-metric-value" id="currentPayback">1.3 years</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sensitivity Tab -->
+            <div id="sensitivity-tab" class="tab-panel">
+                <h2 style="margin-bottom: 2rem; color: var(--text);">Sensitivity Analysis</h2>
+                
+                <div class="sensitivity-container">
+                    <!-- Primary Sensitivity Table: Occupancy vs Price -->
+                    <div class="sensitivity-section">
+                        <h3><i class="fas fa-chart-area"></i> Annual Profit: Occupancy Rate vs Hourly Rate</h3>
+                        <div class="sensitivity-info">
+                            <p>Interactive table showing annual profit at different occupancy rates and pricing levels. Click any cell to apply those parameters.</p>
+                        </div>
+                        <div class="sensitivity-table-wrapper">
+                            <table class="sensitivity-table" id="occupancyPriceTable">
+                                <thead>
+                                    <tr>
+                                        <th class="corner-cell">Occupancy ↓ / Price →</th>
+                                        <th>€20</th>
+                                        <th>€24</th>
+                                        <th>€28</th>
+                                        <th>€32</th>
+                                        <th>€36</th>
+                                        <th>€40</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="occupancyPriceBody">
+                                    <!-- Table content will be generated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="sensitivity-legend">
+                            <span class="legend-item"><span class="legend-color legend-red"></span> Low Profit (&lt;€100k)</span>
+                            <span class="legend-item"><span class="legend-color legend-yellow"></span> Medium Profit (€100k-€400k)</span>
+                            <span class="legend-item"><span class="legend-color legend-green"></span> High Profit (&gt;€400k)</span>
+                        </div>
+                    </div>
+
+                    <!-- Secondary Sensitivity Table: Courts vs Occupancy -->
+                    <div class="sensitivity-section">
+                        <h3><i class="fas fa-expand"></i> Payback Period: Number of Courts vs Occupancy Rate</h3>
+                        <div class="sensitivity-info">
+                            <p>Payback period in years for different facility sizes and occupancy rates. Helps with expansion planning.</p>
+                        </div>
+                        <div class="sensitivity-table-wrapper">
+                            <table class="sensitivity-table" id="courtsOccupancyTable">
+                                <thead>
+                                    <tr>
+                                        <th class="corner-cell">Courts ↓ / Occupancy →</th>
+                                        <th>30%</th>
+                                        <th>40%</th>
+                                        <th>50%</th>
+                                        <th>60%</th>
+                                        <th>70%</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="courtsOccupancyBody">
+                                    <!-- Table content will be generated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="sensitivity-legend">
+                            <span class="legend-item"><span class="legend-color legend-red"></span> Long Payback (&gt;5 years)</span>
+                            <span class="legend-item"><span class="legend-color legend-yellow"></span> Moderate Payback (2-5 years)</span>
+                            <span class="legend-item"><span class="legend-color legend-green"></span> Fast Payback (&lt;2 years)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span class="toast-message">Settings saved!</span>
+    </div>
+
+    <script>
+        // Initialize variables
+        let charts = {};
+        let autoSaveTimer;
+        
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update tab panels
+            document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Update charts if analytics tab
+            if (tabName === 'analytics') {
+                setTimeout(() => updateCharts(), 100);
+            }
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            document.getElementById('themeIcon').className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        }
+
+        // Load theme preference
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.getElementById('themeIcon').className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            
+            // Initialize
+            initializeInputs();
+            initializeCharts();
+            
+            // Always load defaults first to ensure all fields have values
+            const defaults = {
+                numCourts: 8,
+                costPerCourt: 35000,
+                infrastructureCost: 100000,
+                additionalFacilities: 100000,
+                hourlyRate: 28,
+                occupancyRate: 50,
+                hoursPerDay: 12,
+                daysPerYear: 360,
+                landRental: 120000,
+                maintenancePerCourt: 2200,
+                managerSalary: 42000,
+                instructorSalary: 19800,
+                receptionSalary: 14400,
+                maintenanceStaffSalary: 16800,
+                proShopRevenue: 15000,
+                fbRevenue: 20000,
+                eventsPerYear: 6,
+                revenuePerEvent: 2000
+            };
+            
+            // Set default values
+            Object.keys(defaults).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.classList.contains('amount-input')) {
+                        // Format amount inputs
+                        element.value = formatNumberInput(defaults[key]);
+                    } else {
+                        element.value = defaults[key];
+                    }
+                }
+            });
+            
+            // Then try to load saved settings if they exist
+            const hasSavedSettings = localStorage.getItem('padelModelSettings');
+            if (hasSavedSettings) {
+                loadSettings(true); // Silent load on startup
+            }
+            
+            updateRangeDisplays();
+            updateAll();
+            generateSensitivityTables();
+        });
+
+        // Calculate financial model
+        function calculateModel() {
+            const params = {
+                numCourts: parseInt(document.getElementById('numCourts').value),
+                costPerCourt: parseFloat(unformatNumberInput(document.getElementById('costPerCourt').value)),
+                infrastructureCost: parseFloat(unformatNumberInput(document.getElementById('infrastructureCost').value)),
+                additionalFacilities: parseFloat(unformatNumberInput(document.getElementById('additionalFacilities').value)),
+                hourlyRate: parseFloat(document.getElementById('hourlyRate').value),
+                occupancyRate: parseFloat(document.getElementById('occupancyRate').value) / 100,
+                hoursPerDay: parseInt(document.getElementById('hoursPerDay').value),
+                daysPerYear: parseInt(unformatNumberInput(document.getElementById('daysPerYear').value)),
+                landRental: parseFloat(unformatNumberInput(document.getElementById('landRental').value)),
+                maintenancePerCourt: parseFloat(unformatNumberInput(document.getElementById('maintenancePerCourt').value)),
+                managerSalary: parseFloat(unformatNumberInput(document.getElementById('managerSalary').value)),
+                instructorSalary: parseFloat(unformatNumberInput(document.getElementById('instructorSalary').value)),
+                receptionSalary: parseFloat(unformatNumberInput(document.getElementById('receptionSalary').value)),
+                maintenanceStaffSalary: parseFloat(unformatNumberInput(document.getElementById('maintenanceStaffSalary').value)),
+                proShopRevenue: parseFloat(unformatNumberInput(document.getElementById('proShopRevenue').value)),
+                fbRevenue: parseFloat(unformatNumberInput(document.getElementById('fbRevenue').value)),
+                eventsPerYear: parseInt(unformatNumberInput(document.getElementById('eventsPerYear').value)),
+                revenuePerEvent: parseFloat(unformatNumberInput(document.getElementById('revenuePerEvent').value))
+            };
+
+            const totalInvestment = (params.numCourts * params.costPerCourt) + params.infrastructureCost + params.additionalFacilities;
+            const courtRentalRevenue = params.numCourts * params.hourlyRate * params.hoursPerDay * 
+                                      params.daysPerYear * params.occupancyRate;
+            const eventRevenue = params.eventsPerYear * params.revenuePerEvent;
+            const totalRevenue = courtRentalRevenue + params.proShopRevenue + params.fbRevenue + eventRevenue;
+            
+            const totalMaintenance = params.numCourts * params.maintenancePerCourt;
+            const totalSalaries = params.managerSalary + params.instructorSalary + 
+                                params.receptionSalary + params.maintenanceStaffSalary;
+            const totalExpenses = params.landRental + totalMaintenance + totalSalaries;
+            
+            const netProfit = totalRevenue - totalExpenses;
+            const roi = (netProfit / totalInvestment) * 100;
+            const paybackPeriod = netProfit > 0 ? totalInvestment / netProfit : 999;
+            
+            const fixedCosts = totalExpenses - (params.proShopRevenue + params.fbRevenue + eventRevenue);
+            const revenuePerOccupancyPercent = params.numCourts * params.hourlyRate * params.hoursPerDay * 
+                                              params.daysPerYear * 0.01;
+            const breakEvenOccupancy = fixedCosts / revenuePerOccupancyPercent;
+            
+            const fiveYearProfit = netProfit * 5;
+
+            return {
+                params,
+                totalInvestment,
+                courtRentalRevenue,
+                eventRevenue,
+                totalRevenue,
+                totalMaintenance,
+                totalSalaries,
+                totalExpenses,
+                netProfit,
+                roi,
+                paybackPeriod,
+                breakEvenOccupancy,
+                fiveYearProfit
+            };
+        }
+
+        // Format currency
+        function formatCurrency(value) {
+            return '€' + value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+
+        // Format number with thousand separators
+        function formatNumberInput(value) {
+            return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // Remove formatting from number input
+        function unformatNumberInput(value) {
+            return value.toString().replace(/,/g, '');
+        }
+
+        // Format all number inputs with thousand separators
+        function formatAllNumberInputs() {
+            document.querySelectorAll('input.amount-input').forEach(input => {
+                if (input.value && input.value.trim() !== '') {
+                    const value = unformatNumberInput(input.value.toString());
+                    if (value && !isNaN(parseFloat(value))) {
+                        input.value = formatNumberInput(value);
+                    }
+                }
+            });
+        }
+
+        // Update all displays
+        function updateAll() {
+            const results = calculateModel();
+            
+            // Update dashboard metrics
+            document.getElementById('totalInvestment').textContent = formatCurrency(results.totalInvestment);
+            document.getElementById('annualRevenue').textContent = formatCurrency(results.totalRevenue);
+            document.getElementById('annualCosts').textContent = formatCurrency(results.totalExpenses);
+            document.getElementById('netProfit').textContent = formatCurrency(results.netProfit);
+            document.getElementById('roi').textContent = results.roi.toFixed(1) + '%';
+            document.getElementById('paybackPeriod').textContent = results.paybackPeriod.toFixed(1) + ' years';
+            document.getElementById('breakEvenOccupancy').textContent = results.breakEvenOccupancy.toFixed(1) + '%';
+            document.getElementById('fiveYearProfit').textContent = formatCurrency(results.fiveYearProfit);
+            
+            // Update summary cards
+            document.getElementById('summaryInvestment').textContent = formatCurrency(results.totalInvestment);
+            document.getElementById('summaryProfit').textContent = formatCurrency(results.netProfit);
+            document.getElementById('summaryROI').textContent = results.roi.toFixed(1) + '%';
+            document.getElementById('summaryPayback').textContent = results.paybackPeriod.toFixed(1) + ' years';
+            
+            // Update tables
+            updateTables(results);
+            
+            // Update scenarios
+            updateScenarios();
+            
+            // Update charts
+            updateCharts();
+            
+            // Update sensitivity highlights
+            if (typeof updateSensitivityHighlights === 'function') {
+                updateSensitivityHighlights();
+            }
+            
+            // Auto-save
+            autoSave();
+        }
+
+        // Update tables
+        function updateTables(results) {
+            // Investment table
+            document.getElementById('investmentDetails').innerHTML = `
+                <tr>
+                    <td>Padel Courts</td>
+                    <td>${results.params.numCourts}</td>
+                    <td class="number">${formatCurrency(results.params.costPerCourt)}</td>
+                    <td class="number">${formatCurrency(results.params.numCourts * results.params.costPerCourt)}</td>
+                </tr>
+                <tr>
+                    <td>Infrastructure</td>
+                    <td>1</td>
+                    <td class="number">${formatCurrency(results.params.infrastructureCost)}</td>
+                    <td class="number">${formatCurrency(results.params.infrastructureCost)}</td>
+                </tr>
+                <tr>
+                    <td>Additional Facilities (F&B + Pro Shop)</td>
+                    <td>1</td>
+                    <td class="number">${formatCurrency(results.params.additionalFacilities)}</td>
+                    <td class="number">${formatCurrency(results.params.additionalFacilities)}</td>
+                </tr>
+            `;
+            document.getElementById('investmentTotal').textContent = formatCurrency(results.totalInvestment);
+            
+            // Revenue table
+            document.getElementById('revenueDetails').innerHTML = `
+                <tr>
+                    <td>Court Rentals</td>
+                    <td>${results.params.numCourts} courts × ${formatCurrency(results.params.hourlyRate)}/hr × ${results.params.hoursPerDay}hrs × ${results.params.daysPerYear} days × ${(results.params.occupancyRate * 100).toFixed(0)}%</td>
+                    <td class="number">${formatCurrency(results.courtRentalRevenue)}</td>
+                </tr>
+                <tr>
+                    <td>Pro Shop</td>
+                    <td>Annual estimate</td>
+                    <td class="number">${formatCurrency(results.params.proShopRevenue)}</td>
+                </tr>
+                <tr>
+                    <td>Food & Beverage</td>
+                    <td>Annual estimate</td>
+                    <td class="number">${formatCurrency(results.params.fbRevenue)}</td>
+                </tr>
+                <tr>
+                    <td>Events</td>
+                    <td>${results.params.eventsPerYear} events × ${formatCurrency(results.params.revenuePerEvent)}</td>
+                    <td class="number">${formatCurrency(results.eventRevenue)}</td>
+                </tr>
+            `;
+            document.getElementById('revenueTotal').textContent = formatCurrency(results.totalRevenue);
+            
+            // Expense table
+            document.getElementById('expenseDetails').innerHTML = `
+                <tr>
+                    <td>Land Rental</td>
+                    <td>Annual lease</td>
+                    <td class="number">${formatCurrency(results.params.landRental)}</td>
+                </tr>
+                <tr>
+                    <td>Court Maintenance</td>
+                    <td>${results.params.numCourts} courts × ${formatCurrency(results.params.maintenancePerCourt)}</td>
+                    <td class="number">${formatCurrency(results.totalMaintenance)}</td>
+                </tr>
+                <tr>
+                    <td>Manager Salary</td>
+                    <td>Annual</td>
+                    <td class="number">${formatCurrency(results.params.managerSalary)}</td>
+                </tr>
+                <tr>
+                    <td>Instructor Salary</td>
+                    <td>Annual</td>
+                    <td class="number">${formatCurrency(results.params.instructorSalary)}</td>
+                </tr>
+                <tr>
+                    <td>Reception Staff</td>
+                    <td>Annual</td>
+                    <td class="number">${formatCurrency(results.params.receptionSalary)}</td>
+                </tr>
+                <tr>
+                    <td>Maintenance Staff</td>
+                    <td>Annual</td>
+                    <td class="number">${formatCurrency(results.params.maintenanceStaffSalary)}</td>
+                </tr>
+            `;
+            document.getElementById('expenseTotal').textContent = formatCurrency(results.totalExpenses);
+            
+            // Projection table
+            let projectionHTML = '';
+            let cumulative = 0;
+            for (let year = 1; year <= 5; year++) {
+                cumulative += results.netProfit;
+                projectionHTML += `
+                    <tr>
+                        <td>Year ${year}</td>
+                        <td class="number">${formatCurrency(results.totalRevenue)}</td>
+                        <td class="number">${formatCurrency(results.totalExpenses)}</td>
+                        <td class="number">${formatCurrency(results.netProfit)}</td>
+                        <td class="number">${formatCurrency(cumulative)}</td>
+                    </tr>
+                `;
+            }
+            document.getElementById('projectionDetails').innerHTML = projectionHTML;
+            
+            // Update current scenario
+            document.getElementById('currentOccupancy').textContent = (results.params.occupancyRate * 100).toFixed(0) + '%';
+            document.getElementById('currentPrice').textContent = formatCurrency(results.params.hourlyRate);
+            document.getElementById('currentProfit').textContent = formatCurrency(results.netProfit);
+            document.getElementById('currentROI').textContent = results.roi.toFixed(1) + '%';
+            document.getElementById('currentPayback').textContent = results.paybackPeriod.toFixed(1) + ' years';
+        }
+
+        // Calculate scenario
+        function calculateScenario(occupancy, price) {
+            const numCourts = parseInt(document.getElementById('numCourts').value);
+            const costPerCourt = parseFloat(document.getElementById('costPerCourt').value);
+            const infrastructureCost = parseFloat(document.getElementById('infrastructureCost').value);
+            const hoursPerDay = parseInt(document.getElementById('hoursPerDay').value);
+            const daysPerYear = parseInt(document.getElementById('daysPerYear').value);
+            const landRental = parseFloat(document.getElementById('landRental').value);
+            const maintenancePerCourt = parseFloat(document.getElementById('maintenancePerCourt').value);
+            const totalSalaries = parseFloat(document.getElementById('managerSalary').value) + 
+                                parseFloat(document.getElementById('instructorSalary').value) + 
+                                parseFloat(document.getElementById('receptionSalary').value) + 
+                                parseFloat(document.getElementById('maintenanceStaffSalary').value);
+            const additionalRevenue = parseFloat(document.getElementById('proShopRevenue').value) + 
+                                    parseFloat(document.getElementById('fbRevenue').value);
+            
+            const totalInvestment = (numCourts * costPerCourt) + infrastructureCost;
+            const courtRevenue = numCourts * price * hoursPerDay * daysPerYear * (occupancy / 100);
+            const totalRevenue = courtRevenue + additionalRevenue;
+            const totalExpenses = landRental + (numCourts * maintenancePerCourt) + totalSalaries;
+            const netProfit = totalRevenue - totalExpenses;
+            const roi = (netProfit / totalInvestment) * 100;
+            const paybackPeriod = netProfit > 0 ? totalInvestment / netProfit : 999;
+            
+            return { netProfit, roi, paybackPeriod };
+        }
+
+        // Update scenarios
+        function updateScenarios() {
+            const conservative = calculateScenario(40, 24);
+            document.getElementById('conservativeProfit').textContent = formatCurrency(conservative.netProfit);
+            document.getElementById('conservativeROI').textContent = conservative.roi.toFixed(1) + '%';
+            document.getElementById('conservativePayback').textContent = conservative.paybackPeriod.toFixed(1) + ' years';
+            
+            const base = calculateScenario(50, 28);
+            document.getElementById('baseProfit').textContent = formatCurrency(base.netProfit);
+            document.getElementById('baseROI').textContent = base.roi.toFixed(1) + '%';
+            document.getElementById('basePayback').textContent = base.paybackPeriod.toFixed(1) + ' years';
+            
+            const optimistic = calculateScenario(70, 32);
+            document.getElementById('optimisticProfit').textContent = formatCurrency(optimistic.netProfit);
+            document.getElementById('optimisticROI').textContent = optimistic.roi.toFixed(1) + '%';
+            document.getElementById('optimisticPayback').textContent = optimistic.paybackPeriod.toFixed(1) + ' years';
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
+            };
+
+            // Occupancy Chart
+            const occupancyCtx = document.getElementById('occupancyChart').getContext('2d');
+            charts.occupancy = new Chart(occupancyCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        x: { title: { display: true, text: 'Occupancy (%)' }},
+                        y: { 
+                            title: { display: true, text: 'Annual Profit (€)' },
+                            ticks: { callback: value => formatCurrency(value) }
+                        }
+                    }
+                }
+            });
+
+            // Price Chart
+            const priceCtx = document.getElementById('priceChart').getContext('2d');
+            charts.price = new Chart(priceCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        x: { title: { display: true, text: 'Hourly Rate (€)' }},
+                        y: { 
+                            title: { display: true, text: 'ROI (%)' },
+                            ticks: { callback: value => value + '%' }
+                        }
+                    }
+                }
+            });
+
+            // Revenue Breakdown
+            const revenueCtx = document.getElementById('revenueBreakdownChart').getContext('2d');
+            charts.revenue = new Chart(revenueCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444']
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: {
+                        legend: { 
+                            display: true,
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Projection Chart
+            const projectionCtx = document.getElementById('projectionChart').getContext('2d');
+            charts.projection = new Chart(projectionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: 'rgba(79, 70, 229, 0.8)',
+                        borderColor: '#4f46e5',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: { 
+                            title: { display: true, text: 'Cumulative Profit (€)' },
+                            ticks: { callback: value => formatCurrency(value) }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update charts
+        function updateCharts() {
+            const results = calculateModel();
+            
+            // Update Occupancy Chart
+            const occupancyData = [];
+            const occupancyLabels = [];
+            for (let occ = 10; occ <= 90; occ += 10) {
+                occupancyLabels.push(occ);
+                const scenario = calculateScenario(occ, results.params.hourlyRate);
+                occupancyData.push(scenario.netProfit);
+            }
+            charts.occupancy.data.labels = occupancyLabels;
+            charts.occupancy.data.datasets[0].data = occupancyData;
+            charts.occupancy.update();
+            
+            // Update Price Chart
+            const priceData = [];
+            const priceLabels = [];
+            for (let price = 20; price <= 40; price += 2) {
+                priceLabels.push(price);
+                const scenario = calculateScenario(results.params.occupancyRate * 100, price);
+                priceData.push(scenario.roi);
+            }
+            charts.price.data.labels = priceLabels;
+            charts.price.data.datasets[0].data = priceData;
+            charts.price.update();
+            
+            // Update Revenue Breakdown
+            charts.revenue.data.labels = ['Court Rentals', 'Pro Shop', 'F&B', 'Events'];
+            charts.revenue.data.datasets[0].data = [
+                results.courtRentalRevenue,
+                results.params.proShopRevenue,
+                results.params.fbRevenue,
+                results.eventRevenue
+            ];
+            charts.revenue.update();
+            
+            // Update Projection Chart
+            const projectionData = [];
+            let cumulative = 0;
+            for (let year = 1; year <= 5; year++) {
+                cumulative += results.netProfit;
+                projectionData.push(cumulative);
+            }
+            charts.projection.data.datasets[0].data = projectionData;
+            charts.projection.update();
+        }
+
+        // Initialize inputs
+        function initializeInputs() {
+            // Add event listeners to all inputs
+            document.querySelectorAll('input').forEach(input => {
+                if (input.classList.contains('amount-input')) {
+                    // Handle amount inputs (text inputs with formatting)
+                    input.addEventListener('input', (e) => {
+                        // Allow only numbers and commas during typing
+                        let value = e.target.value.replace(/[^0-9,]/g, '');
+                        
+                        // Remove existing commas and reformat
+                        const numericValue = value.replace(/,/g, '');
+                        if (numericValue && !isNaN(numericValue)) {
+                            e.target.value = formatNumberInput(numericValue);
+                        }
+                        
+                        updateAll();
+                    });
+                    
+                    input.addEventListener('focus', () => {
+                        // Remove commas for easier editing
+                        const currentValue = input.value || '';
+                        input.value = unformatNumberInput(currentValue);
+                    });
+                    
+                    input.addEventListener('blur', () => {
+                        // Add commas back when done editing
+                        const value = unformatNumberInput(input.value || '');
+                        if (value && !isNaN(parseFloat(value))) {
+                            input.value = formatNumberInput(value);
+                        }
+                    });
+                } else {
+                    // Handle other inputs (number, range)
+                    input.addEventListener('input', () => {
+                        updateRangeDisplays();
+                        updateAll();
+                    });
+                }
+            });
+            
+            // Initialize range displays
+            updateRangeDisplays();
+        }
+
+        // Update range displays
+        function updateRangeDisplays() {
+            document.querySelectorAll('.range-container').forEach(container => {
+                const input = container.querySelector('input[type="range"]');
+                const display = container.querySelector('.range-value');
+                if (input && display) {
+                    let value = input.value;
+                    if (input.id === 'hourlyRate') {
+                        display.textContent = '€' + value;
+                    } else if (input.id === 'occupancyRate') {
+                        display.textContent = value + '%';
+                    } else if (input.id === 'hoursPerDay') {
+                        display.textContent = value + 'h';
+                    } else {
+                        display.textContent = value;
+                    }
+                }
+            });
+        }
+
+        // Save settings
+        function saveSettings() {
+            const settings = {
+                numCourts: document.getElementById('numCourts').value,
+                costPerCourt: unformatNumberInput(document.getElementById('costPerCourt').value),
+                infrastructureCost: unformatNumberInput(document.getElementById('infrastructureCost').value),
+                additionalFacilities: unformatNumberInput(document.getElementById('additionalFacilities').value),
+                hourlyRate: document.getElementById('hourlyRate').value,
+                occupancyRate: document.getElementById('occupancyRate').value,
+                hoursPerDay: document.getElementById('hoursPerDay').value,
+                daysPerYear: document.getElementById('daysPerYear').value,
+                landRental: unformatNumberInput(document.getElementById('landRental').value),
+                maintenancePerCourt: unformatNumberInput(document.getElementById('maintenancePerCourt').value),
+                managerSalary: unformatNumberInput(document.getElementById('managerSalary').value),
+                instructorSalary: unformatNumberInput(document.getElementById('instructorSalary').value),
+                receptionSalary: unformatNumberInput(document.getElementById('receptionSalary').value),
+                maintenanceStaffSalary: unformatNumberInput(document.getElementById('maintenanceStaffSalary').value),
+                proShopRevenue: unformatNumberInput(document.getElementById('proShopRevenue').value),
+                fbRevenue: unformatNumberInput(document.getElementById('fbRevenue').value),
+                eventsPerYear: document.getElementById('eventsPerYear').value,
+                revenuePerEvent: unformatNumberInput(document.getElementById('revenuePerEvent').value)
+            };
+            
+            localStorage.setItem('padelModelSettings', JSON.stringify(settings));
+            showToast('Settings saved successfully!');
+        }
+
+        // Auto-save
+        function autoSave() {
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                const settings = {
+                    numCourts: document.getElementById('numCourts').value,
+                    costPerCourt: unformatNumberInput(document.getElementById('costPerCourt').value),
+                    infrastructureCost: unformatNumberInput(document.getElementById('infrastructureCost').value),
+                    additionalFacilities: unformatNumberInput(document.getElementById('additionalFacilities').value),
+                    hourlyRate: document.getElementById('hourlyRate').value,
+                    occupancyRate: document.getElementById('occupancyRate').value,
+                    hoursPerDay: document.getElementById('hoursPerDay').value,
+                    daysPerYear: document.getElementById('daysPerYear').value,
+                    landRental: unformatNumberInput(document.getElementById('landRental').value),
+                    maintenancePerCourt: unformatNumberInput(document.getElementById('maintenancePerCourt').value),
+                    managerSalary: unformatNumberInput(document.getElementById('managerSalary').value),
+                    instructorSalary: unformatNumberInput(document.getElementById('instructorSalary').value),
+                    receptionSalary: unformatNumberInput(document.getElementById('receptionSalary').value),
+                    maintenanceStaffSalary: unformatNumberInput(document.getElementById('maintenanceStaffSalary').value),
+                    proShopRevenue: unformatNumberInput(document.getElementById('proShopRevenue').value),
+                    fbRevenue: unformatNumberInput(document.getElementById('fbRevenue').value),
+                    eventsPerYear: document.getElementById('eventsPerYear').value,
+                    revenuePerEvent: unformatNumberInput(document.getElementById('revenuePerEvent').value)
+                };
+                localStorage.setItem('padelModelSettings', JSON.stringify(settings));
+            }, 1000);
+        }
+
+        // Load settings
+        function loadSettings(silent = false) {
+            const saved = localStorage.getItem('padelModelSettings');
+            if (saved) {
+                const settings = JSON.parse(saved);
+                Object.keys(settings).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        if (element.classList.contains('amount-input')) {
+                            // Format amount inputs
+                            element.value = formatNumberInput(settings[key]);
+                        } else {
+                            element.value = settings[key];
+                        }
+                    }
+                });
+                updateRangeDisplays();
+                updateAll();
+                if (!silent) {
+                    showToast('Settings loaded successfully!');
+                }
+            } else if (!silent) {
+                showToast('No saved settings found', 'error');
+            }
+        }
+
+        // Reset settings
+        function resetSettings() {
+            const defaults = {
+                numCourts: 8,
+                costPerCourt: 35000,
+                infrastructureCost: 100000,
+                additionalFacilities: 100000,
+                hourlyRate: 28,
+                occupancyRate: 50,
+                hoursPerDay: 12,
+                daysPerYear: 360,
+                landRental: 120000,
+                maintenancePerCourt: 2200,
+                managerSalary: 42000,
+                instructorSalary: 19800,
+                receptionSalary: 14400,
+                maintenanceStaffSalary: 16800,
+                proShopRevenue: 15000,
+                fbRevenue: 20000,
+                eventsPerYear: 6,
+                revenuePerEvent: 2000
+            };
+            
+            Object.keys(defaults).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.classList.contains('amount-input')) {
+                        // Format amount inputs
+                        element.value = formatNumberInput(defaults[key]);
+                    } else {
+                        element.value = defaults[key];
+                    }
+                }
+            });
+            
+            updateRangeDisplays();
+            updateAll();
+            showToast('Reset to default values');
+        }
+
+        // Export data
+        function exportData() {
+            const results = calculateModel();
+            const data = {
+                timestamp: new Date().toISOString(),
+                parameters: results.params,
+                results: {
+                    totalInvestment: results.totalInvestment,
+                    totalRevenue: results.totalRevenue,
+                    totalExpenses: results.totalExpenses,
+                    netProfit: results.netProfit,
+                    roi: results.roi,
+                    paybackPeriod: results.paybackPeriod,
+                    breakEvenOccupancy: results.breakEvenOccupancy,
+                    fiveYearProfit: results.fiveYearProfit
+                }
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            const exportFileDefaultName = 'padel_model_' + new Date().toISOString().slice(0,10) + '.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showToast('Data exported successfully!');
+        }
+
+        // Load scenario
+        function loadScenario(type) {
+            const scenarios = {
+                conservative: { occupancyRate: 40, hourlyRate: 24 },
+                base: { occupancyRate: 50, hourlyRate: 28 },
+                optimistic: { occupancyRate: 70, hourlyRate: 32 }
+            };
+            
+            if (scenarios[type]) {
+                document.getElementById('occupancyRate').value = scenarios[type].occupancyRate;
+                document.getElementById('hourlyRate').value = scenarios[type].hourlyRate;
+                updateRangeDisplays();
+                updateAll();
+                // Format number inputs after a short delay to allow DOM to update
+                setTimeout(formatAllNumberInputs, 100);
+                
+                // Update active scenario card
+                document.querySelectorAll('.scenario-card').forEach(card => card.classList.remove('active'));
+                event.currentTarget.classList.add('active');
+                
+                showToast(`Loaded ${type} scenario`);
+            }
+        }
+
+        // Generate Sensitivity Tables
+        function generateSensitivityTables() {
+            generateOccupancyPriceTable();
+            generateCourtsOccupancyTable();
+            updateSensitivityHighlights();
+        }
+
+        function generateOccupancyPriceTable() {
+            const occupancyRates = [30, 40, 50, 60, 70, 80];
+            const hourlyRates = [20, 24, 28, 32, 36, 40];
+            const tbody = document.getElementById('occupancyPriceBody');
+            
+            tbody.innerHTML = '';
+            
+            occupancyRates.forEach(occupancy => {
+                const row = document.createElement('tr');
+                
+                // Row header
+                const headerCell = document.createElement('td');
+                headerCell.className = 'row-header';
+                headerCell.textContent = occupancy + '%';
+                row.appendChild(headerCell);
+                
+                // Data cells
+                hourlyRates.forEach(rate => {
+                    const cell = document.createElement('td');
+                    
+                    // Calculate profit for this combination
+                    const profit = calculateProfitForParams({
+                        occupancyRate: occupancy,
+                        hourlyRate: rate
+                    });
+                    
+                    cell.textContent = formatCurrency(profit);
+                    cell.className = getProfitColorClass(profit);
+                    cell.dataset.occupancy = occupancy;
+                    cell.dataset.rate = rate;
+                    
+                    // Add click handler
+                    cell.addEventListener('click', () => {
+                        applySensitivityParams(occupancy, rate);
+                    });
+                    
+                    row.appendChild(cell);
+                });
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function generateCourtsOccupancyTable() {
+            const courtCounts = [4, 6, 8, 10, 12];
+            const occupancyRates = [30, 40, 50, 60, 70];
+            const tbody = document.getElementById('courtsOccupancyBody');
+            
+            tbody.innerHTML = '';
+            
+            courtCounts.forEach(courts => {
+                const row = document.createElement('tr');
+                
+                // Row header
+                const headerCell = document.createElement('td');
+                headerCell.className = 'row-header';
+                headerCell.textContent = courts + ' Courts';
+                row.appendChild(headerCell);
+                
+                // Data cells
+                occupancyRates.forEach(occupancy => {
+                    const cell = document.createElement('td');
+                    
+                    // Calculate payback period for this combination
+                    const payback = calculatePaybackForParams({
+                        numCourts: courts,
+                        occupancyRate: occupancy
+                    });
+                    
+                    cell.textContent = payback.toFixed(1) + 'y';
+                    cell.className = getPaybackColorClass(payback);
+                    cell.dataset.courts = courts;
+                    cell.dataset.occupancy = occupancy;
+                    
+                    // Add click handler
+                    cell.addEventListener('click', () => {
+                        applyCourtsParams(courts, occupancy);
+                    });
+                    
+                    row.appendChild(cell);
+                });
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function calculateProfitForParams(params) {
+            // Get current parameters
+            const currentParams = {
+                numCourts: parseInt(document.getElementById('numCourts').value),
+                costPerCourt: parseFloat(unformatNumberInput(document.getElementById('costPerCourt').value)),
+                infrastructureCost: parseFloat(unformatNumberInput(document.getElementById('infrastructureCost').value)),
+                additionalFacilities: parseFloat(unformatNumberInput(document.getElementById('additionalFacilities').value)),
+                hourlyRate: params.hourlyRate || parseFloat(document.getElementById('hourlyRate').value),
+                occupancyRate: (params.occupancyRate || parseFloat(document.getElementById('occupancyRate').value)) / 100,
+                hoursPerDay: parseInt(document.getElementById('hoursPerDay').value),
+                daysPerYear: parseInt(unformatNumberInput(document.getElementById('daysPerYear').value)),
+                landRental: parseFloat(unformatNumberInput(document.getElementById('landRental').value)),
+                maintenancePerCourt: parseFloat(unformatNumberInput(document.getElementById('maintenancePerCourt').value)),
+                managerSalary: parseFloat(unformatNumberInput(document.getElementById('managerSalary').value)),
+                instructorSalary: parseFloat(unformatNumberInput(document.getElementById('instructorSalary').value)),
+                receptionSalary: parseFloat(unformatNumberInput(document.getElementById('receptionSalary').value)),
+                maintenanceStaffSalary: parseFloat(unformatNumberInput(document.getElementById('maintenanceStaffSalary').value)),
+                proShopRevenue: parseFloat(unformatNumberInput(document.getElementById('proShopRevenue').value)),
+                fbRevenue: parseFloat(unformatNumberInput(document.getElementById('fbRevenue').value)),
+                eventsPerYear: parseInt(unformatNumberInput(document.getElementById('eventsPerYear').value)),
+                revenuePerEvent: parseFloat(unformatNumberInput(document.getElementById('revenuePerEvent').value))
+            };
+
+            // Override with sensitivity parameters
+            if (params.numCourts) currentParams.numCourts = params.numCourts;
+            if (params.occupancyRate) currentParams.occupancyRate = params.occupancyRate / 100;
+            if (params.hourlyRate) currentParams.hourlyRate = params.hourlyRate;
+
+            const courtRentalRevenue = currentParams.numCourts * currentParams.hourlyRate * currentParams.hoursPerDay * 
+                                      currentParams.daysPerYear * currentParams.occupancyRate;
+            const eventsRevenue = currentParams.eventsPerYear * currentParams.revenuePerEvent;
+            const totalRevenue = courtRentalRevenue + currentParams.proShopRevenue + 
+                                currentParams.fbRevenue + eventsRevenue;
+
+            const maintenanceCost = currentParams.numCourts * currentParams.maintenancePerCourt;
+            const totalSalaries = currentParams.managerSalary + currentParams.instructorSalary + 
+                                 currentParams.receptionSalary + currentParams.maintenanceStaffSalary;
+            const totalOperatingCosts = currentParams.landRental + maintenanceCost + totalSalaries;
+
+            return totalRevenue - totalOperatingCosts;
+        }
+
+        function calculatePaybackForParams(params) {
+            const profit = calculateProfitForParams(params);
+            const investment = (params.numCourts || parseInt(document.getElementById('numCourts').value)) * 
+                              parseFloat(unformatNumberInput(document.getElementById('costPerCourt').value)) +
+                              parseFloat(unformatNumberInput(document.getElementById('infrastructureCost').value)) +
+                              parseFloat(unformatNumberInput(document.getElementById('additionalFacilities').value));
+            
+            return profit > 0 ? investment / profit : 99; // Return high number if no profit
+        }
+
+        function getProfitColorClass(profit) {
+            if (profit < 100000) return 'profit-low';
+            if (profit < 400000) return 'profit-medium';
+            return 'profit-high';
+        }
+
+        function getPaybackColorClass(payback) {
+            if (payback > 5) return 'payback-slow';
+            if (payback > 2) return 'payback-moderate';
+            return 'payback-fast';
+        }
+
+        function applySensitivityParams(occupancy, rate) {
+            document.getElementById('occupancyRate').value = occupancy;
+            document.getElementById('hourlyRate').value = rate;
+            updateRangeDisplays();
+            updateAll();
+            updateSensitivityHighlights();
+        }
+
+        function applyCourtsParams(courts, occupancy) {
+            document.getElementById('numCourts').value = courts;
+            document.getElementById('occupancyRate').value = occupancy;
+            updateRangeDisplays();
+            updateAll();
+            updateSensitivityHighlights();
+        }
+
+        function updateSensitivityHighlights() {
+            const currentOccupancy = parseInt(document.getElementById('occupancyRate').value);
+            const currentRate = parseInt(document.getElementById('hourlyRate').value);
+            const currentCourts = parseInt(document.getElementById('numCourts').value);
+
+            // Clear previous highlights
+            document.querySelectorAll('.sensitivity-table td.current-params').forEach(td => {
+                td.classList.remove('current-params');
+            });
+
+            // Highlight current params in occupancy-price table
+            const occupancyPriceTable = document.getElementById('occupancyPriceTable');
+            occupancyPriceTable.querySelectorAll('td[data-occupancy][data-rate]').forEach(td => {
+                if (parseInt(td.dataset.occupancy) === currentOccupancy && 
+                    parseInt(td.dataset.rate) === currentRate) {
+                    td.classList.add('current-params');
+                }
+            });
+
+            // Highlight current params in courts-occupancy table
+            const courtsOccupancyTable = document.getElementById('courtsOccupancyTable');
+            courtsOccupancyTable.querySelectorAll('td[data-courts][data-occupancy]').forEach(td => {
+                if (parseInt(td.dataset.courts) === currentCourts && 
+                    parseInt(td.dataset.occupancy) === currentOccupancy) {
+                    td.classList.add('current-params');
+                }
+            });
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = toast.querySelector('i');
+            const messageEl = toast.querySelector('.toast-message');
+            
+            toast.className = 'toast ' + type;
+            messageEl.textContent = message;
+            
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                icon.className = 'fas fa-exclamation-circle';
+            }
+            
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
