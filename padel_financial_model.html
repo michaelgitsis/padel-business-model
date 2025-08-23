@@ -2103,6 +2103,87 @@
             }
         }
     </style>
+    <script>
+        // Tab switching function - defined early to ensure immediate availability
+        function switchTab(tabName) {
+            try {
+                console.log(`Switching to tab: ${tabName}`);
+                
+                // Update tab buttons
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                
+                // Find and activate the correct button
+                const buttons = document.querySelectorAll('.tab-btn');
+                buttons.forEach(btn => {
+                    if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabName)) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                // Update tab panels
+                document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+                const targetPanel = document.getElementById(`${tabName}-tab`);
+                if (targetPanel) {
+                    targetPanel.classList.add('active');
+                } else {
+                    console.error(`Tab panel not found: ${tabName}-tab`);
+                }
+                
+                // Special handling for tabs that need additional processing
+                if (tabName === 'sensitivity') {
+                    // Defer sensitivity table generation until DOM and other functions are ready
+                    setTimeout(() => {
+                        try {
+                            if (window.generateSensitivityTables) {
+                                console.log('Sensitivity tab activated, generating tables...');
+                                window.generateSensitivityTables();
+                            } else {
+                                console.log('generateSensitivityTables not ready yet, will try again...');
+                                setTimeout(() => window.generateSensitivityTables && window.generateSensitivityTables(), 1000);
+                            }
+                        } catch (error) {
+                            console.error('Error in sensitivity tab:', error);
+                        }
+                    }, 500);
+                }
+                
+                if (tabName === 'report') {
+                    setTimeout(() => {
+                        try {
+                            if (window.updateReport) {
+                                console.log('Report tab activated, updating report...');
+                                window.updateReport();
+                            } else {
+                                console.log('updateReport function not ready yet...');
+                            }
+                        } catch (error) {
+                            console.error('Error updating report:', error);
+                        }
+                    }, 300);
+                }
+                
+                if (tabName === 'bank-presentation') {
+                    setTimeout(() => {
+                        try {
+                            if (window.calculateModel && window.updateBankPresentationCharts) {
+                                const results = window.calculateModel();
+                                window.updateBankPresentationCharts(results);
+                            } else {
+                                console.log('Bank presentation functions not ready yet...');
+                            }
+                        } catch (error) {
+                            console.error('Error in bank presentation tab:', error);
+                        }
+                    }, 500);
+                }
+            } catch (error) {
+                console.error('Tab switching error:', error);
+            }
+        }
+        
+        // Make function globally available
+        window.switchTab = switchTab;
+    </script>
 </head>
 <body>
     <div class="app-container">
@@ -3724,47 +3805,6 @@
     </div>
 
     <script>
-        // Tab switching function - defined first to ensure availability
-        function switchTab(tabName) {
-            try {
-                // Update tab buttons
-                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-                
-                // Find and activate the correct button
-                const buttons = document.querySelectorAll('.tab-btn');
-                buttons.forEach(btn => {
-                    if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabName)) {
-                        btn.classList.add('active');
-                    }
-                });
-                
-                // Update tab panels
-                document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
-                const targetPanel = document.getElementById(`${tabName}-tab`);
-                if (targetPanel) {
-                    targetPanel.classList.add('active');
-                } else {
-                    console.error(`Tab panel not found: ${tabName}-tab`);
-                }
-            } catch (error) {
-                console.error('Tab switching error:', error);
-            }
-            
-            
-            // Generate sensitivity tables if sensitivity tab
-            if (tabName === 'sensitivity') {
-                setTimeout(() => generateSensitivityTables(), 500);
-            }
-            
-            // Draw Bank Presentation charts if bank presentation tab
-            if (tabName === 'bank-presentation') {
-                setTimeout(() => {
-                    const results = calculateModel();
-                    updateBankPresentationCharts(results);
-                }, 200);
-            }
-        }
-
         // Initialize variables
         let autoSaveTimer;
 
@@ -3848,6 +3888,7 @@
             updateRangeDisplays();
             updateAll();
             generateSensitivityTables();
+            updateReport();
             
             // Force update financing report after a brief delay to ensure all elements are loaded
             setTimeout(() => {
@@ -5085,21 +5126,268 @@
 
         // Generate Sensitivity Tables
         function generateSensitivityTables() {
-            console.log('Starting to generate sensitivity tables...');
+            console.log('=== Starting to generate sensitivity tables ===');
+            
+            // Check if required input elements exist
+            const requiredInputs = ['numCourts', 'costPerCourt', 'hourlyRate', 'occupancyRate'];
+            console.log('Checking for required inputs:', requiredInputs);
+            
+            const missingInputs = requiredInputs.filter(id => {
+                const element = document.getElementById(id);
+                console.log(`Element '${id}':`, element ? `found (value: ${element.value})` : 'NOT FOUND');
+                return !element;
+            });
+            
+            if (missingInputs.length > 0) {
+                console.error('Missing input elements:', missingInputs);
+                console.log('Will retry in 1 second...');
+                setTimeout(() => generateSensitivityTables(), 1000);
+                return;
+            }
+            
             try {
+                console.log('Generating occupancy-price table...');
                 generateOccupancyPriceTable();
+                
+                console.log('Generating price-occupancy table...');
                 generatePriceOccupancyTable();
+                
+                console.log('Generating courts-ROI table...');
                 generateCourtsRoiTable();
+                
+                console.log('Generating investment-profit table...');
                 generateInvestmentProfitTable();
+                
+                console.log('Generating ancillary revenue table...');
                 generateAncillaryRevenueTable();
+                
+                console.log('Generating financing ROI table...');
                 generateFinancingROITable();
+                
+                console.log('Generating financing IRR table...');
                 generateFinancingIRRTable();
+                
+                console.log('Updating sensitivity highlights...');
                 updateSensitivityHighlights();
-                console.log('All sensitivity tables generated successfully.');
+                
+                console.log('=== All sensitivity tables generated successfully ===');
             } catch (error) {
                 console.error('Error generating sensitivity tables:', error);
+                console.error('Error stack:', error.stack);
             }
         }
+        
+        // Function to force regenerate tables (useful for parameter changes)
+        function regenerateSensitivityTables() {
+            generateSensitivityTables();
+        }
+
+        // Update Report with current parameters
+        function updateReport() {
+            console.log('Updating report with current parameters...');
+            
+            try {
+                const results = calculateModel();
+                if (!results) {
+                    console.error('No calculation results available');
+                    return;
+                }
+                
+                // Update Investment Breakdown
+                updateInvestmentBreakdown(results);
+                
+                // Update Revenue Streams
+                updateRevenueStreams(results);
+                
+                // Update Operating Expenses
+                updateOperatingExpenses(results);
+                
+                // Update 5-Year Projections
+                update5YearProjections(results);
+                
+                console.log('Report updated successfully');
+            } catch (error) {
+                console.error('Error updating report:', error);
+            }
+        }
+
+        function updateInvestmentBreakdown(results) {
+            const tbody = document.getElementById('investmentDetails');
+            if (!tbody) return;
+            
+            const numCourts = parseInt(document.getElementById('numCourts').value);
+            const costPerCourt = parseFloat(unformatNumberInput(document.getElementById('costPerCourt').value));
+            const infrastructureCost = parseFloat(unformatNumberInput(document.getElementById('infrastructureCost').value));
+            const additionalFacilities = parseFloat(unformatNumberInput(document.getElementById('additionalFacilities').value));
+            
+            tbody.innerHTML = `
+                <tr>
+                    <td>Padel Courts</td>
+                    <td>${numCourts}</td>
+                    <td class="number">${formatCurrency(costPerCourt)}</td>
+                    <td class="number">${formatCurrency(numCourts * costPerCourt)}</td>
+                </tr>
+                <tr>
+                    <td>Infrastructure</td>
+                    <td>1</td>
+                    <td class="number">${formatCurrency(infrastructureCost)}</td>
+                    <td class="number">${formatCurrency(infrastructureCost)}</td>
+                </tr>
+                <tr>
+                    <td>Additional Facilities</td>
+                    <td>1</td>
+                    <td class="number">${formatCurrency(additionalFacilities)}</td>
+                    <td class="number">${formatCurrency(additionalFacilities)}</td>
+                </tr>
+            `;
+            
+            document.getElementById('investmentTotal').textContent = formatCurrency(results.totalInvestment);
+        }
+
+        function updateRevenueStreams(results) {
+            const tbody = document.getElementById('revenueDetails');
+            if (!tbody) return;
+            
+            const numCourts = parseInt(document.getElementById('numCourts').value);
+            const hourlyRate = parseFloat(document.getElementById('hourlyRate').value);
+            const occupancyRate = parseFloat(document.getElementById('occupancyRate').value);
+            const hoursPerDay = parseInt(document.getElementById('hoursPerDay').value);
+            const daysPerYear = parseInt(unformatNumberInput(document.getElementById('daysPerYear').value));
+            const proShopRevenue = parseFloat(unformatNumberInput(document.getElementById('proShopRevenue').value));
+            const fbRevenue = parseFloat(unformatNumberInput(document.getElementById('fbRevenue').value));
+            const eventsPerYear = parseInt(unformatNumberInput(document.getElementById('eventsPerYear').value));
+            const revenuePerEvent = parseFloat(unformatNumberInput(document.getElementById('revenuePerEvent').value));
+            
+            const courtRevenue = numCourts * hourlyRate * hoursPerDay * daysPerYear * (occupancyRate / 100);
+            const eventsRevenue = eventsPerYear * revenuePerEvent;
+            
+            tbody.innerHTML = `
+                <tr>
+                    <td><strong>Gross Court Bookings</strong></td>
+                    <td>${numCourts} courts × €${hourlyRate}/hr × ${hoursPerDay}hrs × ${daysPerYear} days × ${occupancyRate}%</td>
+                    <td class="number">${formatCurrency(courtRevenue)}</td>
+                </tr>
+                <tr>
+                    <td>Pro Shop</td>
+                    <td>Annual estimate</td>
+                    <td class="number">${formatCurrency(proShopRevenue)}</td>
+                </tr>
+                <tr>
+                    <td>Food & Beverage</td>
+                    <td>Annual estimate</td>
+                    <td class="number">${formatCurrency(fbRevenue)}</td>
+                </tr>
+                <tr>
+                    <td>Events</td>
+                    <td>${eventsPerYear} events × ${formatCurrency(revenuePerEvent)}</td>
+                    <td class="number">${formatCurrency(eventsRevenue)}</td>
+                </tr>
+            `;
+            
+            document.getElementById('revenueTotal').textContent = formatCurrency(results.totalRevenue);
+        }
+
+        function updateOperatingExpenses(results) {
+            const tbody = document.getElementById('expenseDetails');
+            if (!tbody) return;
+            
+            const numCourts = parseInt(document.getElementById('numCourts').value);
+            const landRental = parseFloat(unformatNumberInput(document.getElementById('landRental').value));
+            const maintenancePerCourt = parseFloat(unformatNumberInput(document.getElementById('maintenancePerCourt').value));
+            const managerSalary = parseFloat(unformatNumberInput(document.getElementById('managerSalary').value));
+            const instructorSalary = parseFloat(unformatNumberInput(document.getElementById('instructorSalary').value));
+            const receptionSalary = parseFloat(unformatNumberInput(document.getElementById('receptionSalary').value));
+            const maintenanceStaffSalary = parseFloat(unformatNumberInput(document.getElementById('maintenanceStaffSalary').value));
+            const waterCost = parseFloat(unformatNumberInput(document.getElementById('waterCost').value));
+            const electricityCost = parseFloat(unformatNumberInput(document.getElementById('electricityCost').value));
+            
+            tbody.innerHTML = `
+                <tr>
+                    <td>Land Rental</td>
+                    <td>Annual lease</td>
+                    <td class="number">${formatCurrency(landRental)}</td>
+                </tr>
+                <tr>
+                    <td>Court Maintenance</td>
+                    <td>${numCourts} courts × ${formatCurrency(maintenancePerCourt)}</td>
+                    <td class="number">${formatCurrency(numCourts * maintenancePerCourt)}</td>
+                </tr>
+                <tr>
+                    <td>Manager Salary</td>
+                    <td>Annual</td>
+                    <td class="number">${formatCurrency(managerSalary)}</td>
+                </tr>
+                <tr>
+                    <td>Instructor Salary</td>
+                    <td>Annual</td>
+                    <td class="number">${formatCurrency(instructorSalary)}</td>
+                </tr>
+                <tr>
+                    <td>Reception Staff</td>
+                    <td>Annual</td>
+                    <td class="number">${formatCurrency(receptionSalary)}</td>
+                </tr>
+                <tr>
+                    <td>Maintenance Staff</td>
+                    <td>Annual</td>
+                    <td class="number">${formatCurrency(maintenanceStaffSalary)}</td>
+                </tr>
+                <tr>
+                    <td>Water</td>
+                    <td>Annual estimate</td>
+                    <td class="number">${formatCurrency(waterCost)}</td>
+                </tr>
+                <tr>
+                    <td>Electricity</td>
+                    <td>Annual estimate</td>
+                    <td class="number">${formatCurrency(electricityCost)}</td>
+                </tr>
+            `;
+            
+            document.getElementById('expenseTotal').textContent = formatCurrency(results.totalExpenses);
+        }
+
+        function update5YearProjections(results) {
+            const tbody = document.getElementById('projectionDetails');
+            if (!tbody) return;
+            
+            const projectPeriod = parseInt(document.getElementById('projectPeriod').value);
+            const loanAmount = results.totalInvestment * 0.6; // 60% loan
+            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
+            const monthlyRate = interestRate / 12;
+            const loanTerm = parseInt(document.getElementById('loanTerm').value) * 12; // months
+            
+            // Calculate monthly payment
+            const monthlyPayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, loanTerm)) / 
+                                  (Math.pow(1 + monthlyRate, loanTerm) - 1);
+            const annualDebtService = monthlyPayment * 12;
+            
+            let cumulativeProfit = 0;
+            let projectionHTML = '';
+            
+            for (let year = 1; year <= projectPeriod; year++) {
+                const netIncome = results.netProfit - annualDebtService;
+                cumulativeProfit += netIncome;
+                
+                projectionHTML += `
+                    <tr>
+                        <td>Year ${year}</td>
+                        <td class="number">${formatCurrency(results.totalRevenue)}</td>
+                        <td class="number">${formatCurrency(results.totalExpenses)}</td>
+                        <td class="number">${formatCurrency(annualDebtService)}</td>
+                        <td class="number">${formatCurrency(netIncome)}</td>
+                        <td class="number">${formatCurrency(cumulativeProfit)}</td>
+                    </tr>
+                `;
+            }
+            
+            tbody.innerHTML = projectionHTML;
+        }
+
+        // Make all functions globally available
+        window.generateSensitivityTables = generateSensitivityTables;
+        window.updateReport = updateReport;
+
 
         function generateOccupancyPriceTable() {
             console.log('Generating Occupancy-Price table...');
@@ -5127,21 +5415,35 @@
                 hourlyRates.forEach(rate => {
                     const cell = document.createElement('td');
                     
-                    // Calculate profit for this combination
-                    const profit = calculateProfitForParams({
-                        occupancyRate: occupancy,
-                        hourlyRate: rate
-                    });
-                    
-                    cell.textContent = formatCurrency(profit);
-                    cell.className = getProfitColorClass(profit);
-                    cell.dataset.occupancy = occupancy;
-                    cell.dataset.rate = rate;
-                    
-                    // Add click handler
-                    cell.addEventListener('click', () => {
-                        applySensitivityParams(occupancy, rate);
-                    });
+                    try {
+                        // Calculate profit for this combination
+                        const profit = calculateProfitForParams({
+                            occupancyRate: occupancy,
+                            hourlyRate: rate
+                        });
+                        
+                        console.log(`Profit for ${occupancy}% occupancy and €${rate}/hour: €${profit}`);
+                        
+                        if (profit !== null && !isNaN(profit)) {
+                            cell.textContent = formatCurrency(profit);
+                            cell.className = getProfitColorClass(profit);
+                        } else {
+                            cell.textContent = 'N/A';
+                            console.error(`Invalid profit calculation result: ${profit}`);
+                        }
+                        
+                        cell.dataset.occupancy = occupancy;
+                        cell.dataset.rate = rate;
+                        
+                        // Add click handler
+                        cell.addEventListener('click', () => {
+                            applySensitivityParams(occupancy, rate);
+                        });
+                        
+                    } catch (error) {
+                        console.error(`Error calculating profit for ${occupancy}%/${rate}€:`, error);
+                        cell.textContent = 'Error';
+                    }
                     
                     row.appendChild(cell);
                 });
@@ -5414,7 +5716,22 @@
         }
 
         function calculateProfitForParams(params) {
-            // Get current parameters
+            // Get current parameters with error handling
+            const requiredElements = [
+                'numCourts', 'costPerCourt', 'infrastructureCost', 'additionalFacilities',
+                'hourlyRate', 'occupancyRate', 'hoursPerDay', 'daysPerYear', 'landRental',
+                'maintenancePerCourt', 'managerSalary', 'instructorSalary', 'receptionSalary',
+                'maintenanceStaffSalary', 'proShopRevenue', 'fbRevenue', 'eventsPerYear',
+                'revenuePerEvent', 'waterCost', 'electricityCost'
+            ];
+            
+            // Check if all required elements exist
+            const missingElements = requiredElements.filter(id => !document.getElementById(id));
+            if (missingElements.length > 0) {
+                console.error('Missing elements for calculation:', missingElements);
+                return null;
+            }
+            
             const currentParams = {
                 numCourts: parseInt(document.getElementById('numCourts').value),
                 costPerCourt: parseFloat(unformatNumberInput(document.getElementById('costPerCourt').value)),
@@ -6257,7 +6574,9 @@ Best regards`;
                 title: "Annual Electricity Cost (€12,000)",
                 explanation: "LED court lighting, facility lighting, HVAC for indoor areas, and equipment operation based on Cyprus commercial electricity rates.",
                 sources: [
-                    { text: "Cyprus Utility Costs", url: "https://dojobusiness.com/blogs/news/padel-center-budget-utilities" },
+                    { text: "Cyprus Utility Costs", url: "https://dojobusiness.com/blogs/news/padel-center-budget-utilities" }
+                ]
+            },
             vatRate: {
                 title: "VAT Rate (%)",
                 explanation: "Value Added Tax rate in Cyprus. 5% reduced rate applies to licensed sports facilities for admission and booking fees. 19% standard rate applies if no sports operation license is held.",
@@ -6270,8 +6589,6 @@ Best regards`;
                 explanation: "Platform booking commission charged by Playtomic on all court reservations. Industry standard ranges from 2-10%, typically 4% for sports facilities.",
                 sources: [
                     { text: "Playtomic for Business", url: "https://playtomic.io/business" }
-                ]
-            },                    { text: "Padel Center Budget Planning", url: "https://www.reddit.com/r/padel/comments/14ox30e/thinking_about_padel_club_expenses_does_anyone/" }
                 ]
             },
             managerSalary: {
