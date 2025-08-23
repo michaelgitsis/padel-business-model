@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- 3D gradient for depth -->
+    <linearGradient id="court3D" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#059669;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#047857;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Racket gradient -->
+    <linearGradient id="racket3D" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Shadow gradient -->
+    <linearGradient id="shadow3D" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#000000;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:0.1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Court floor in perspective -->
+  <path d="M20 40 L100 35 L105 85 L25 90 Z" 
+        fill="url(#court3D)" 
+        stroke="#065f46" 
+        stroke-width="2"/>
+  
+  <!-- Court shadow -->
+  <path d="M22 42 L102 37 L107 87 L27 92 Z" 
+        fill="url(#shadow3D)" 
+        opacity="0.3"/>
+  
+  <!-- Court center line (perspective) -->
+  <path d="M60 37.5 L62.5 87.5" 
+        stroke="#34d399" 
+        stroke-width="2" 
+        opacity="0.8"/>
+  
+  <!-- Left side service line -->
+  <path d="M35 38.5 L40 86.5" 
+        stroke="#34d399" 
+        stroke-width="1" 
+        opacity="0.6"/>
+  
+  <!-- Right side service line -->
+  <path d="M85 36.5 L85 85" 
+        stroke="#34d399" 
+        stroke-width="1" 
+        opacity="0.6"/>
+  
+  <!-- Left racket in 3D perspective -->
+  <g transform="translate(15, 20) rotate(-10)">
+    <!-- Racket shadow -->
+    <ellipse cx="12" cy="17" rx="9" ry="18" 
+             fill="#000000" 
+             opacity="0.2"/>
+    
+    <!-- Racket head -->
+    <ellipse cx="10" cy="15" rx="8" ry="16" 
+             fill="none" 
+             stroke="url(#racket3D)" 
+             stroke-width="3"/>
+    
+    <!-- Handle -->
+    <rect x="8" y="31" width="4" height="22" 
+          fill="url(#racket3D)" 
+          rx="2"/>
+    
+    <!-- 3D handle grip -->
+    <rect x="8.5" y="35" width="3" height="2" 
+          fill="#92400e" 
+          opacity="0.8"/>
+    <rect x="8.5" y="39" width="3" height="2" 
+          fill="#92400e" 
+          opacity="0.8"/>
+    <rect x="8.5" y="43" width="3" height="2" 
+          fill="#92400e" 
+          opacity="0.8"/>
+    
+    <!-- Strings -->
+    <line x1="4" y1="5" x2="16" y2="5" stroke="#fbbf24" stroke-width="0.5"/>
+    <line x1="4" y1="10" x2="16" y2="10" stroke="#fbbf24" stroke-width="0.5"/>
+    <line x1="4" y1="15" x2="16" y2="15" stroke="#fbbf24" stroke-width="0.5"/>
+    <line x1="4" y1="20" x2="16" y2="20" stroke="#fbbf24" stroke-width="0.5"/>
+    <line x1="4" y1="25" x2="16" y2="25" stroke="#fbbf24" stroke-width="0.5"/>
+    <line x1="6" y1="1" x2="6" y2="29" stroke="#fbbf24" stroke-width="0.5"/>
+    <line x1="10" y1="-1" x2="10" y2="31" stroke="#fbbf24" stroke-width="0.5"/>
+    <line x1="14" y1="1" x2="14" y2="29" stroke="#fbbf24" stroke-width="0.5"/>
+  </g>
+  
+  <!-- Right racket in 3D perspective -->
+  <g transform="translate(85, 15) rotate(15)">
+    <!-- Racket shadow -->
+    <ellipse cx="12" cy="17" rx="9" ry="18" 
+             fill="#000000" 
+             opacity="0.2"/>
+    
+    <!-- Racket head -->
+    <ellipse cx="10" cy="15" rx="8" ry="16" 
+             fill="none" 
+             stroke="url(#racket3D)" 
+             stroke-width="3"/>
+    
+    <!-- Handle -->
+    <rect x="8" y="31" width="4" height="22" 
+          fill="url(#racket3D)" 
+          rx="2"/>
+    
+    <!-- 3D handle grip -->
+    <rect x="8.5" y="35" width="3" height="2" 
+          fill="#92400e" 
+          opacity="0.8"/>
+    <rect x="8.5" y="39" width="3" height="2" 
+          fill="#92400e" 
+          opacity="0.8"/>
+    <rect x="8.5" y="43" width="3" height="2" 
+          fill="#92400e" 
+          opacity="0.8"/>
+    
+    <!-- Strings -->
+    <line x1="4" y1="5" x2="16" y2="5" stroke="#fbbf24" stroke-width="0.5"/>
+    <line x1="4" y1="10" x2="16" y2="10" stroke="#fbbf24" stroke-width="0.5"/>
+    <line x1="4" y1="15" x2="16" y2="15" stroke="#fbbf24" stroke-width="0.5"/>
+    <line x1="4" y1="20" x2="16" y2="20" stroke="#fbbf24" stroke-width="0.5"/>
+    <line x1="4" y1="25" x2="16" y2="25" stroke="#fbbf24" stroke-width="0.5"/>
+    <line x1="6" y1="1" x2="6" y2="29" stroke="#fbbf24" stroke-width="0.5"/>
+    <line x1="10" y1="-1" x2="10" y2="31" stroke="#fbbf24" stroke-width="0.5"/>
+    <line x1="14" y1="1" x2="14" y2="29" stroke="#fbbf24" stroke-width="0.5"/>
+  </g>
+  
+  <!-- H crossbar (3D perspective) -->
+  <path d="M40 50 L80 48 L82 54 L42 56 Z" 
+        fill="url(#racket3D)"/>
+  
+  <!-- Net (3D) -->
+  <path d="M58 40 L65 85" 
+        stroke="#e5e7eb" 
+        stroke-width="4" 
+        opacity="0.8"/>
+  <path d="M56 45 L66 45" stroke="#d1d5db" stroke-width="1"/>
+  <path d="M57 55 L67 55" stroke="#d1d5db" stroke-width="1"/>
+  <path d="M58 65 L68 65" stroke="#d1d5db" stroke-width="1"/>
+  <path d="M59 75 L69 75" stroke="#d1d5db" stroke-width="1"/>
+  
+  <!-- Brand text -->
+  <text x="60" y="110" 
+        font-family="Arial, sans-serif" 
+        font-size="8" 
+        font-weight="bold" 
+        text-anchor="middle" 
+        fill="#047857">
+    PADELIKO
+  </text>
+</svg>

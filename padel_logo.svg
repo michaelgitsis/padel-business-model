@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient for rackets -->
+    <linearGradient id="racketGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4f46e5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Shadow filter -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.3)"/>
+    </filter>
+  </defs>
+  
+  <!-- Court background (subtle) -->
+  <rect x="20" y="30" width="80" height="60" 
+        fill="none" 
+        stroke="#e5e7eb" 
+        stroke-width="2" 
+        rx="4"/>
+  
+  <!-- Court net line -->
+  <line x1="60" y1="30" x2="60" y2="90" 
+        stroke="#d1d5db" 
+        stroke-width="2" 
+        stroke-dasharray="4,4"/>
+  
+  <!-- Left racket forming left side of "H" -->
+  <g transform="translate(25, 20)">
+    <!-- Racket handle -->
+    <rect x="8" y="70" width="4" height="25" 
+          fill="url(#racketGradient)" 
+          rx="2"/>
+    
+    <!-- Racket head (oval) -->
+    <ellipse cx="10" cy="55" rx="8" ry="20" 
+             fill="none" 
+             stroke="url(#racketGradient)" 
+             stroke-width="3"/>
+    
+    <!-- Racket strings (horizontal) -->
+    <line x1="4" y1="45" x2="16" y2="45" stroke="#6b7280" stroke-width="0.5"/>
+    <line x1="4" y1="50" x2="16" y2="50" stroke="#6b7280" stroke-width="0.5"/>
+    <line x1="4" y1="55" x2="16" y2="55" stroke="#6b7280" stroke-width="0.5"/>
+    <line x1="4" y1="60" x2="16" y2="60" stroke="#6b7280" stroke-width="0.5"/>
+    <line x1="4" y1="65" x2="16" y2="65" stroke="#6b7280" stroke-width="0.5"/>
+    
+    <!-- Racket strings (vertical) -->
+    <line x1="6" y1="37" x2="6" y2="73" stroke="#6b7280" stroke-width="0.5"/>
+    <line x1="10" y1="35" x2="10" y2="75" stroke="#6b7280" stroke-width="0.5"/>
+    <line x1="14" y1="37" x2="14" y2="73" stroke="#6b7280" stroke-width="0.5"/>
+  </g>
+  
+  <!-- Right racket forming right side of "H" -->
+  <g transform="translate(75, 20)">
+    <!-- Racket handle -->
+    <rect x="8" y="70" width="4" height="25" 
+          fill="url(#racketGradient)" 
+          rx="2"/>
+    
+    <!-- Racket head (oval) -->
+    <ellipse cx="10" cy="55" rx="8" ry="20" 
+             fill="none" 
+             stroke="url(#racketGradient)" 
+             stroke-width="3"/>
+    
+    <!-- Racket strings (horizontal) -->
+    <line x1="4" y1="45" x2="16" y2="45" stroke="#6b7280" stroke-width="0.5"/>
+    <line x1="4" y1="50" x2="16" y2="50" stroke="#6b7280" stroke-width="0.5"/>
+    <line x1="4" y1="55" x2="16" y2="55" stroke="#6b7280" stroke-width="0.5"/>
+    <line x1="4" y1="60" x2="16" y2="60" stroke="#6b7280" stroke-width="0.5"/>
+    <line x1="4" y1="65" x2="16" y2="65" stroke="#6b7280" stroke-width="0.5"/>
+    
+    <!-- Racket strings (vertical) -->
+    <line x1="6" y1="37" x2="6" y2="73" stroke="#6b7280" stroke-width="0.5"/>
+    <line x1="10" y1="35" x2="10" y2="75" stroke="#6b7280" stroke-weight="0.5"/>
+    <line x1="14" y1="37" x2="14" y2="73" stroke="#6b7280" stroke-width="0.5"/>
+  </g>
+  
+  <!-- Horizontal crossbar of "H" (stylized as court net) -->
+  <rect x="42" y="73" width="36" height="4" 
+        fill="url(#racketGradient)" 
+        rx="2"/>
+  
+  <!-- Small padel ball -->
+  <circle cx="60" cy="50" r="3" 
+          fill="#fbbf24" 
+          stroke="#f59e0b" 
+          stroke-width="0.5"/>
+  
+  <!-- Brand text (optional) -->
+  <text x="60" y="115" 
+        font-family="Arial, sans-serif" 
+        font-size="8" 
+        font-weight="bold" 
+        text-anchor="middle" 
+        fill="#4f46e5">
+    PADELIKO
+  </text>
+</svg>

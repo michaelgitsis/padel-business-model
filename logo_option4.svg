@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Elite gradient -->
+    <radialGradient id="eliteGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    </radialGradient>
+    
+    <!-- Dark accent -->
+    <linearGradient id="darkAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1f2937;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#374151;stop-opacity:1" />
+    </radialGradient>
+    
+    <!-- Circle background -->
+    <radialGradient id="circleBg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#f8fafc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e2e8f0;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Main circle background -->
+  <circle cx="60" cy="60" r="55" 
+          fill="url(#circleBg)" 
+          stroke="#cbd5e1" 
+          stroke-width="3"/>
+  
+  <!-- Inner circle -->
+  <circle cx="60" cy="60" r="45" 
+          fill="none" 
+          stroke="url(#eliteGradient)" 
+          stroke-width="2" 
+          opacity="0.3"/>
+  
+  <!-- First racket (diagonal top-left to bottom-right) -->
+  <g transform="translate(60, 60) rotate(-45)">
+    <!-- Racket head -->
+    <ellipse cx="0" cy="-20" rx="12" ry="20" 
+             fill="none" 
+             stroke="url(#eliteGradient)" 
+             stroke-width="3"/>
+    
+    <!-- Handle -->
+    <rect x="-2.5" y="0" width="5" height="25" 
+          fill="url(#darkAccent)" 
+          rx="2.5"/>
+    
+    <!-- Handle grip -->
+    <rect x="-2" y="5" width="4" height="3" 
+          fill="url(#eliteGradient)" 
+          opacity="0.7"/>
+    <rect x="-2" y="10" width="4" height="3" 
+          fill="url(#eliteGradient)" 
+          opacity="0.7"/>
+    <rect x="-2" y="15" width="4" height="3" 
+          fill="url(#eliteGradient)" 
+          opacity="0.7"/>
+    
+    <!-- Racket strings -->
+    <line x1="-8" y1="-30" x2="8" y2="-30" stroke="#f59e0b" stroke-width="0.8"/>
+    <line x1="-8" y1="-24" x2="8" y2="-24" stroke="#f59e0b" stroke-width="0.8"/>
+    <line x1="-8" y1="-18" x2="8" y2="-18" stroke="#f59e0b" stroke-width="0.8"/>
+    <line x1="-8" y1="-12" x2="8" y2="-12" stroke="#f59e0b" stroke-width="0.8"/>
+    <line x1="-8" y1="-6" x2="8" y2="-6" stroke="#f59e0b" stroke-width="0.8"/>
+    <line x1="-6" y1="-35" x2="-6" y2="-5" stroke="#f59e0b" stroke-width="0.8"/>
+    <line x1="0" y1="-38" x2="0" y2="-2" stroke="#f59e0b" stroke-width="0.8"/>
+    <line x1="6" y1="-35" x2="6" y2="-5" stroke="#f59e0b" stroke-width="0.8"/>
+  </g>
+  
+  <!-- Second racket (diagonal top-right to bottom-left) -->
+  <g transform="translate(60, 60) rotate(45)">
+    <!-- Racket head -->
+    <ellipse cx="0" cy="-20" rx="12" ry="20" 
+             fill="none" 
+             stroke="url(#eliteGradient)" 
+             stroke-width="3"/>
+    
+    <!-- Handle -->
+    <rect x="-2.5" y="0" width="5" height="25" 
+          fill="url(#darkAccent)" 
+          rx="2.5"/>
+    
+    <!-- Handle grip -->
+    <rect x="-2" y="5" width="4" height="3" 
+          fill="url(#eliteGradient)" 
+          opacity="0.7"/>
+    <rect x="-2" y="10" width="4" height="3" 
+          fill="url(#eliteGradient)" 
+          opacity="0.7"/>
+    <rect x="-2" y="15" width="4" height="3" 
+          fill="url(#eliteGradient)" 
+          opacity="0.7"/>
+    
+    <!-- Racket strings -->
+    <line x1="-8" y1="-30" x2="8" y2="-30" stroke="#f59e0b" stroke-width="0.8"/>
+    <line x1="-8" y1="-24" x2="8" y2="-24" stroke="#f59e0b" stroke-width="0.8"/>
+    <line x1="-8" y1="-18" x2="8" y2="-18" stroke="#f59e0b" stroke-width="0.8"/>
+    <line x1="-8" y1="-12" x2="8" y2="-12" stroke="#f59e0b" stroke-width="0.8"/>
+    <line x1="-8" y1="-6" x2="8" y2="-6" stroke="#f59e0b" stroke-width="0.8"/>
+    <line x1="-6" y1="-35" x2="-6" y2="-5" stroke="#f59e0b" stroke-width="0.8"/>
+    <line x1="0" y1="-38" x2="0" y2="-2" stroke="#f59e0b" stroke-width="0.8"/>
+    <line x1="6" y1="-35" x2="6" y2="-5" stroke="#f59e0b" stroke-width="0.8"/>
+  </g>
+  
+  <!-- Central H monogram -->
+  <g transform="translate(60, 60)">
+    <!-- H left stroke -->
+    <rect x="-12" y="-15" width="4" height="30" 
+          fill="url(#darkAccent)" 
+          rx="2"/>
+    
+    <!-- H right stroke -->
+    <rect x="8" y="-15" width="4" height="30" 
+          fill="url(#darkAccent)" 
+          rx="2"/>
+    
+    <!-- H crossbar -->
+    <rect x="-8" y="-2" width="16" height="4" 
+          fill="url(#eliteGradient)" 
+          rx="2"/>
+    
+    <!-- Decorative center dot -->
+    <circle cx="0" cy="0" r="3" 
+            fill="url(#eliteGradient)" 
+            opacity="0.8"/>
+  </g>
+  
+  <!-- Padel ball at intersection -->
+  <circle cx="60" cy="35" r="4" 
+          fill="#fef3c7" 
+          stroke="#f59e0b" 
+          stroke-width="1"/>
+  
+  <!-- Brand text -->
+  <text x="60" y="110" 
+        font-family="Arial, sans-serif" 
+        font-size="8" 
+        font-weight="600" 
+        text-anchor="middle" 
+        fill="#374151" 
+        letter-spacing="2px">
+    PADELIKO
+  </text>
+</svg>
