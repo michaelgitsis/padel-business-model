@@ -2881,6 +2881,36 @@
                     </table>
                 </div>
 
+                <!-- Loan Amortization Schedule Section -->
+                <div class="report-section">
+                    <h3><i class="fas fa-receipt"></i> Loan Amortization Schedule</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Opening Balance</th>
+                                <th>Interest Payment</th>
+                                <th>Principal Payment</th>
+                                <th>Total Payment</th>
+                                <th>Closing Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loanAmortizationDetails">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Total</th>
+                                <th>-</th>
+                                <th class="number" id="totalInterestPaid">€0</th>
+                                <th class="number" id="totalPrincipalPaid">€0</th>
+                                <th class="number" id="totalPaymentsMade">€0</th>
+                                <th>-</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
                 <!-- Financing Summary Section -->
                 <div class="report-section">
                     <h3><i class="fas fa-university"></i> Financing Structure</h3>
@@ -4130,6 +4160,12 @@
             
             const totalProjectProfit = netProfit * params.projectPeriod;
 
+            // Calculate LTV Ratio (Loan-to-Value)
+            const ltvRatio = (loanAmount / totalProjectCost) * 100;
+
+            // Calculate DSCR (Debt Service Coverage Ratio)
+            const dscr = annualDebtService > 0 ? (netProfit / annualDebtService) : 0;
+
             return {
                 params,
                 totalInvestment: totalProjectCost,  // Use total project cost including dev interest
@@ -4167,6 +4203,8 @@
                 equityPaybackPeriod,
                 projectIRR,
                 equityIRR,
+                ltvRatio,
+                dscr,
                 cashFlows,
                 equityCashFlows
             };
@@ -4275,7 +4313,7 @@
                 <tr>
                     <td><strong>Gross Court Bookings</strong></td>
                     <td>${results.params.numCourts} courts × ${formatCurrency(results.params.hourlyRate)}/hr × ${results.params.hoursPerDay}hrs × ${results.params.daysPerYear} days × ${(results.params.occupancyRate * 100).toFixed(0)}%</td>
-                    <td class="number">Gross: ${formatCurrency(results.grossCourtRevenue)} | VAT: -${formatCurrency(results.vatAmount)} | Playtomic: -${formatCurrency(results.playtomicCommissionAmount)} = ${formatCurrency(results.netCourtRevenue)}</td>
+                    <td class="number"><strong>${formatCurrency(results.grossCourtRevenue)}</strong></td>
                 </tr>
                 <tr style="color: #e74c3c;">
                     <td>&nbsp;&nbsp;Less: VAT (${results.params.vatRate}%)</td>
@@ -4291,7 +4329,8 @@
                     <td><strong>Net Court Revenue</strong></td>
                     <td>After VAT & fees</td>
                     <td class="number"><strong>${formatCurrency(results.netCourtRevenue)}</strong></td>
-                </tr>                <tr>
+                </tr>
+                <tr>
                     <td>Pro Shop</td>
                     <td>Annual estimate</td>
                     <td class="number">${formatCurrency(results.params.proShopRevenue)}</td>
@@ -4914,6 +4953,10 @@
                         display.textContent = value + '%';
                     } else if (input.id === 'financingPercentage') {
                         display.textContent = value + '%';
+                    } else if (input.id === 'vatRate') {
+                        display.textContent = value + '%';
+                    } else if (input.id === 'playtomicCommission') {
+                        display.textContent = value + '%';
                     } else if (input.id === 'developmentMonths') {
                         display.textContent = value + ' months';
                     } else if (input.id === 'projectPeriod') {
@@ -5205,6 +5248,9 @@
                 // Update 5-Year Projections
                 update5YearProjections(results);
                 
+                // Update Loan Amortization Schedule
+                updateLoanAmortizationSchedule(results);
+                
                 console.log('Report updated successfully');
             } catch (error) {
                 console.error('Error updating report:', error);
@@ -5265,20 +5311,35 @@
                 <tr>
                     <td><strong>Gross Court Bookings</strong></td>
                     <td>${numCourts} courts × €${hourlyRate}/hr × ${hoursPerDay}hrs × ${daysPerYear} days × ${occupancyRate}%</td>
-                    <td class="number">${formatCurrency(courtRevenue)}</td>
+                    <td class="number"><strong>${formatCurrency(results.grossCourtRevenue)}</strong></td>
+                </tr>
+                <tr style="color: #e74c3c;">
+                    <td>&nbsp;&nbsp;Less: VAT (${results.params.vatRate}%)</td>
+                    <td>Tax to remit</td>
+                    <td class="number">(${formatCurrency(results.vatAmount)})</td>
+                </tr>
+                <tr style="color: #e74c3c;">
+                    <td>&nbsp;&nbsp;Less: Playtomic Commission (${results.params.playtomicCommission}%)</td>
+                    <td>Platform fee on gross</td>
+                    <td class="number">(${formatCurrency(results.playtomicCommissionAmount)})</td>
+                </tr>
+                <tr style="background-color: #f8f9fa; font-weight: bold;">
+                    <td><strong>Net Court Revenue</strong></td>
+                    <td>After VAT & fees</td>
+                    <td class="number"><strong>${formatCurrency(results.netCourtRevenue)}</strong></td>
                 </tr>
                 <tr>
-                    <td>Pro Shop</td>
+                    <td>Pro Shop Revenue</td>
                     <td>Annual estimate</td>
                     <td class="number">${formatCurrency(proShopRevenue)}</td>
                 </tr>
                 <tr>
-                    <td>Food & Beverage</td>
+                    <td>Food & Beverage Revenue</td>
                     <td>Annual estimate</td>
                     <td class="number">${formatCurrency(fbRevenue)}</td>
                 </tr>
                 <tr>
-                    <td>Events</td>
+                    <td>Events Revenue</td>
                     <td>${eventsPerYear} events × ${formatCurrency(revenuePerEvent)}</td>
                     <td class="number">${formatCurrency(eventsRevenue)}</td>
                 </tr>
@@ -5382,6 +5443,65 @@
             }
             
             tbody.innerHTML = projectionHTML;
+        }
+
+        function updateLoanAmortizationSchedule(results) {
+            const tbody = document.getElementById('loanAmortizationDetails');
+            if (!tbody) return;
+            
+            const loanAmount = results.adjustedLoanAmount;
+            const interestRate = results.params.interestRate;
+            const monthlyPayment = calculateLoanPayment(loanAmount, interestRate, results.params.loanTerm);
+            const annualPayment = monthlyPayment * 12;
+            const loanTermYears = results.params.loanTerm;
+            
+            let remainingBalance = loanAmount;
+            let totalInterest = 0;
+            let totalPrincipal = 0;
+            let totalPayments = 0;
+            let amortizationHTML = '';
+            
+            for (let year = 1; year <= loanTermYears; year++) {
+                const openingBalance = remainingBalance;
+                
+                // Calculate annual interest on the opening balance
+                const interestPayment = openingBalance * interestRate;
+                
+                // Principal payment is the difference between total payment and interest
+                const principalPayment = Math.min(annualPayment - interestPayment, openingBalance);
+                
+                // Calculate closing balance
+                const closingBalance = Math.max(0, openingBalance - principalPayment);
+                
+                // Update totals
+                totalInterest += interestPayment;
+                totalPrincipal += principalPayment;
+                totalPayments += (interestPayment + principalPayment);
+                
+                amortizationHTML += `
+                    <tr>
+                        <td>Year ${year}</td>
+                        <td class="number">${formatCurrency(openingBalance)}</td>
+                        <td class="number">${formatCurrency(interestPayment)}</td>
+                        <td class="number">${formatCurrency(principalPayment)}</td>
+                        <td class="number">${formatCurrency(interestPayment + principalPayment)}</td>
+                        <td class="number">${formatCurrency(closingBalance)}</td>
+                    </tr>
+                `;
+                
+                // Update remaining balance for next iteration
+                remainingBalance = closingBalance;
+                
+                // Break if loan is fully paid off
+                if (closingBalance === 0) break;
+            }
+            
+            tbody.innerHTML = amortizationHTML;
+            
+            // Update footer totals
+            document.getElementById('totalInterestPaid').textContent = formatCurrency(totalInterest);
+            document.getElementById('totalPrincipalPaid').textContent = formatCurrency(totalPrincipal);
+            document.getElementById('totalPaymentsMade').textContent = formatCurrency(totalPayments);
         }
 
         // Make all functions globally available
