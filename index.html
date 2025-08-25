@@ -2254,25 +2254,6 @@
             <div id="dashboard-tab" class="tab-panel active">
                 <h2 style="margin-bottom: 2rem; color: var(--text);">Financial Overview</h2>
                 
-                <div class="summary-cards">
-                    <div class="summary-card">
-                        <div class="label">Total Investment</div>
-                        <div class="value" id="summaryInvestment">€380,000</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="label">Annual Profit</div>
-                        <div class="value" id="summaryProfit">€288,240</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="label">ROI</div>
-                        <div class="value" id="summaryROI">75.9%</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="label">Payback Period</div>
-                        <div class="value" id="summaryPayback">1.3 years</div>
-                    </div>
-                </div>
-
                 <div class="metrics-grid">
                     <div class="metric-card">
                         <div class="metric-label">Total Investment Required</div>
@@ -2428,16 +2409,22 @@
                                 <input type="text" id="maintenancePerCourt" value="2,200" class="amount-input" inputmode="numeric">
                             </div>
                             <div class="parameter">
-                                <label>Annual Water Cost (€)
+                                <label>Water Cost per Court/Year (€)
                                     <button class="info-btn" onclick="showInfoModal('waterCost')" type="button">i</button>
                                 </label>
-                                <input type="text" id="waterCost" value="8,000" class="amount-input" inputmode="numeric">
+                                <input type="text" id="waterCost" value="1,000" class="amount-input" inputmode="numeric">
                             </div>
                             <div class="parameter">
-                                <label>Annual Electricity Cost (€)
+                                <label>Electricity Cost per Court/Year (€)
                                     <button class="info-btn" onclick="showInfoModal('electricityCost')" type="button">i</button>
                                 </label>
-                                <input type="text" id="electricityCost" value="15,000" class="amount-input" inputmode="numeric">
+                                <input type="text" id="electricityCost" value="1,875" class="amount-input" inputmode="numeric">
+                            </div>
+                            <div class="parameter">
+                                <label>Insurance per Court/Year (€)
+                                    <button class="info-btn" onclick="showInfoModal('insurancePerCourt')" type="button">i</button>
+                                </label>
+                                <input type="text" id="insurancePerCourt" value="400" class="amount-input" inputmode="numeric">
                             </div>
                         </div>
                     </div>
@@ -3248,9 +3235,10 @@
                 <div class="sensitivity-container">
                     <!-- Primary Sensitivity Table: Occupancy vs Price -->
                     <div class="sensitivity-section">
-                        <h3><i class="fas fa-chart-area"></i> Annual Profit: Occupancy Rate vs Hourly Rate</h3>
+                        <h3><i class="fas fa-chart-area"></i> Annual Net Income: Occupancy Rate vs Hourly Rate</h3>
                         <div class="sensitivity-info">
-                            <p>Interactive table showing annual profit at different occupancy rates and pricing levels. Click any cell to apply those parameters.</p>
+                            <p>Interactive table showing annual net income (after VAT, platform fees, and financing costs) at different occupancy rates and pricing levels. Click any cell to apply those parameters.</p>
+                            <small><strong>Note:</strong> These figures match the P&L statement methodology and include all deductions: 5% VAT, 4% Playtomic commission, and loan interest expenses.</small>
                         </div>
                         <div class="sensitivity-table-wrapper">
                             <table class="sensitivity-table" id="occupancyPriceTable">
@@ -3953,6 +3941,7 @@
                 maintenancePerCourt: parseFloat(unformatNumberInput(document.getElementById('maintenancePerCourt').value)),
                 waterCost: parseFloat(unformatNumberInput(document.getElementById('waterCost').value)),
                 electricityCost: parseFloat(unformatNumberInput(document.getElementById('electricityCost').value)),
+                insurancePerCourt: parseFloat(unformatNumberInput(document.getElementById('insurancePerCourt').value)),
                 managerSalary: parseFloat(unformatNumberInput(document.getElementById('managerSalary').value)),
                 instructorSalary: parseFloat(unformatNumberInput(document.getElementById('instructorSalary').value)),
                 receptionSalary: parseFloat(unformatNumberInput(document.getElementById('receptionSalary').value)),
@@ -3995,9 +3984,12 @@
             const totalRevenue = netCourtRevenue + params.proShopRevenue + params.fbRevenue + eventRevenue;
             
             const totalMaintenance = params.numCourts * params.maintenancePerCourt;
+            const totalWaterCost = params.numCourts * params.waterCost;
+            const totalElectricityCost = params.numCourts * params.electricityCost;
+            const totalInsuranceCost = params.numCourts * params.insurancePerCourt;
             const totalSalaries = params.managerSalary + params.instructorSalary + 
                                 params.receptionSalary + params.maintenanceStaffSalary;
-            const totalExpenses = params.landRental + totalMaintenance + totalSalaries + params.waterCost + params.electricityCost;
+            const totalExpenses = params.landRental + totalMaintenance + totalSalaries + totalWaterCost + totalElectricityCost + totalInsuranceCost;
             
             // Financing calculations
             const loanAmount = totalInvestment * params.financingPercentage;
@@ -4019,8 +4011,10 @@
                 ? loanAmount + developmentInterestTotal 
                 : loanAmount;
             
-            // Annual loan payments (after development)
-            const monthlyLoanPayment = calculateLoanPayment(adjustedLoanAmount, params.interestRate, params.loanTerm);
+            // Annual loan payments (after development) - Use adjusted term
+            const totalRepaymentMonths = (params.loanTerm * 12) - params.developmentMonths;
+            const adjustedLoanTerm = totalRepaymentMonths / 12;
+            const monthlyLoanPayment = calculateLoanPayment(adjustedLoanAmount, params.interestRate, adjustedLoanTerm);
             const annualDebtService = monthlyLoanPayment * 12;
             
             // Cash flows
@@ -4196,12 +4190,6 @@
             document.getElementById('breakEvenOccupancy').textContent = results.breakEvenOccupancy.toFixed(1) + '%';
             document.getElementById('fiveYearProfit').textContent = formatCurrency(results.fiveYearProfit);
             
-            // Update summary cards
-            document.getElementById('summaryInvestment').textContent = formatCurrency(results.totalInvestment);
-            document.getElementById('summaryProfit').textContent = formatCurrency(results.netProfit);
-            document.getElementById('summaryROI').textContent = results.roi.toFixed(1) + '%';
-            document.getElementById('summaryPayback').textContent = results.paybackPeriod.toFixed(1) + ' years';
-            
             // Update tables
             updateTables(results);
             
@@ -4329,12 +4317,17 @@
                 <tr>
                     <td>Water Cost</td>
                     <td>Annual</td>
-                    <td class="number">${formatCurrency(results.params.waterCost)}</td>
+                    <td class="number">${formatCurrency(results.params.numCourts * results.params.waterCost)}</td>
                 </tr>
                 <tr>
                     <td>Electricity Cost</td>
                     <td>Annual</td>
-                    <td class="number">${formatCurrency(results.params.electricityCost)}</td>
+                    <td class="number">${formatCurrency(results.params.numCourts * results.params.electricityCost)}</td>
+                </tr>
+                <tr>
+                    <td>Insurance Cost</td>
+                    <td>Annual</td>
+                    <td class="number">${formatCurrency(results.params.numCourts * results.params.insurancePerCourt)}</td>
                 </tr>
             `;
             document.getElementById('expenseTotal').textContent = formatCurrency(results.totalExpenses);
@@ -4346,7 +4339,8 @@
             // Calculate annual interest and principal for each year
             const initialLoanAmount = results.totalInvestment * results.params.financingPercentage;
             const adjustedLoanAmount = results.adjustedLoanAmount;
-            const repaymentYears = 4; // 4 years of payments (Years 2-5)
+            const totalRepaymentMonths = (results.params.loanTerm * 12) - results.params.developmentMonths;
+            const repaymentYears = totalRepaymentMonths / 12;
             const monthlyPayment = calculateLoanPayment(adjustedLoanAmount, results.params.interestRate, repaymentYears);
             const annualPayment = monthlyPayment * 12;
             const interestRate = results.params.interestRate;
@@ -4499,11 +4493,14 @@
                 const financingPercentage = parseFloat(document.getElementById('financingPercentage').value) / 100;
                 const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
                 const developmentPeriod = parseInt(document.getElementById('developmentMonths').value);
+                const loanTerm = parseFloat(document.getElementById('loanTerm').value);
                 
                 // Use total investment for loan/equity split calculations
                 const baseLoanAmount = results.totalInvestment * financingPercentage;
                 const baseEquityAmount = results.totalInvestment * (1 - financingPercentage);
-                const monthlyDebtService = calculateLoanPayment(results.adjustedLoanAmount, interestRate, 5);
+                const totalRepaymentMonths = (loanTerm * 12) - developmentPeriod;
+                const adjustedLoanTerm = totalRepaymentMonths / 12;
+                const monthlyDebtService = calculateLoanPayment(results.adjustedLoanAmount, interestRate, adjustedLoanTerm);
                 
                 // Debug: Log values to console
                 console.log('Financing Debug:', {
@@ -4578,14 +4575,15 @@
             const playtomicAmount = grossCourtRevenue * (playtomicRate / 100);
             const courtRevenue = grossCourtRevenue - vatAmount - playtomicAmount;
             const totalRevenue = courtRevenue + additionalRevenue;
-            // Scale utilities with number of courts (60% fixed, 40% per court)
-            const baseWaterCost = parseFloat(document.getElementById('waterCost').value);
-            const baseElectricityCost = parseFloat(document.getElementById('electricityCost').value);
-            const baseNumCourts = 8; // Default courts for baseline costs
+            // Calculate per-court costs
+            const waterCostPerCourt = parseFloat(document.getElementById('waterCost').value);
+            const electricityCostPerCourt = parseFloat(document.getElementById('electricityCost').value);
+            const insuranceCostPerCourt = parseFloat(document.getElementById('insurancePerCourt').value);
             
-            const waterCost = baseWaterCost * (0.6 + 0.4 * (numCourts / baseNumCourts));
-            const electricityCost = baseElectricityCost * (0.6 + 0.4 * (numCourts / baseNumCourts));
-            const totalExpenses = landRental + (numCourts * maintenancePerCourt) + totalSalaries + waterCost + electricityCost;
+            const totalWaterCost = numCourts * waterCostPerCourt;
+            const totalElectricityCost = numCourts * electricityCostPerCourt;
+            const totalInsuranceCost = numCourts * insuranceCostPerCourt;
+            const totalExpenses = landRental + (numCourts * maintenancePerCourt) + totalSalaries + totalWaterCost + totalElectricityCost + totalInsuranceCost;
             const netProfit = totalRevenue - totalExpenses;
             const roi = (netProfit / totalInvestment) * 100;
             const paybackPeriod = netProfit > 0 ? totalInvestment / netProfit : 999;
@@ -5255,11 +5253,14 @@
             const financingPercentage = parseFloat(document.getElementById('financingPercentage').value) / 100;
             const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
             const developmentPeriod = parseInt(document.getElementById('developmentMonths').value);
+            const loanTerm = parseFloat(document.getElementById('loanTerm').value);
             
             // Use total investment for loan/equity split calculations
             const baseLoanAmount = results.totalInvestment * financingPercentage;
             const baseEquityAmount = results.totalInvestment * (1 - financingPercentage);
-            const monthlyDebtService = calculateLoanPayment(results.adjustedLoanAmount, interestRate, 4);
+            const totalRepaymentMonths = (loanTerm * 12) - developmentPeriod;
+            const adjustedLoanTerm = totalRepaymentMonths / 12;
+            const monthlyDebtService = calculateLoanPayment(results.adjustedLoanAmount, interestRate, adjustedLoanTerm);
             
             // Update the financing table to show correct breakdown
             let financingHTML = `
@@ -5460,6 +5461,7 @@
             const maintenanceStaffSalary = parseFloat(unformatNumberInput(document.getElementById('maintenanceStaffSalary').value));
             const waterCost = parseFloat(unformatNumberInput(document.getElementById('waterCost').value));
             const electricityCost = parseFloat(unformatNumberInput(document.getElementById('electricityCost').value));
+            const insurancePerCourt = parseFloat(unformatNumberInput(document.getElementById('insurancePerCourt').value));
             
             tbody.innerHTML = `
                 <tr>
@@ -5494,13 +5496,18 @@
                 </tr>
                 <tr>
                     <td>Water</td>
-                    <td>Annual estimate</td>
-                    <td class="number">(${formatCurrency(waterCost)})</td>
+                    <td>${numCourts} courts × ${formatCurrency(waterCost)}</td>
+                    <td class="number">(${formatCurrency(numCourts * waterCost)})</td>
                 </tr>
                 <tr>
                     <td>Electricity</td>
-                    <td>Annual estimate</td>
-                    <td class="number">(${formatCurrency(electricityCost)})</td>
+                    <td>${numCourts} courts × ${formatCurrency(electricityCost)}</td>
+                    <td class="number">(${formatCurrency(numCourts * electricityCost)})</td>
+                </tr>
+                <tr>
+                    <td>Insurance</td>
+                    <td>${numCourts} courts × ${formatCurrency(insurancePerCourt)}</td>
+                    <td class="number">(${formatCurrency(numCourts * insurancePerCourt)})</td>
                 </tr>
             `;
             
@@ -5587,7 +5594,8 @@
             const totalRepaymentMonths = (loanTermYears * 12) - developmentMonths;
             const monthlyPayment = calculateLoanPayment(adjustedLoanAmount, interestRate, totalRepaymentMonths / 12);
             
-            let remainingBalance = initialLoanAmount; // Start with initial loan amount
+            // Start with adjusted loan amount if development interest is capitalized
+            let remainingBalance = results.params.developmentInterest === 'capitalized' ? adjustedLoanAmount : initialLoanAmount;
             let totalInterest = 0;
             let totalPrincipal = 0;
             let totalPayments = 0;
@@ -5602,9 +5610,10 @@
                 let totalPayment = 0;
                 let closingBalance = openingBalance;
                 
-                // Add capitalized development interest at the end of development period
+                // Add capitalized development interest at the end of development period (only if not already included)
                 if (!developmentInterestAdded && yearData.developmentMonths > 0 && 
-                    (i === repaymentSchedule.length - 1 || repaymentSchedule[i + 1].developmentMonths === 0)) {
+                    (i === repaymentSchedule.length - 1 || repaymentSchedule[i + 1].developmentMonths === 0) &&
+                    results.params.developmentInterest !== 'capitalized') {
                     remainingBalance += developmentInterest;
                     closingBalance += developmentInterest;
                     interestPayment = developmentInterest;
@@ -5626,8 +5635,8 @@
                     totalPayment = annualPayment;
                     closingBalance = Math.max(0, remainingBalance - principalPayment);
                     
-                    // Final payment adjustment
-                    if (i === repaymentSchedule.length - 1 && closingBalance > 0 && closingBalance < 100) {
+                    // Final payment adjustment - handle remaining balance
+                    if (i === repaymentSchedule.length - 1 && closingBalance > 0) {
                         principalPayment += closingBalance;
                         totalPayment = interestPayment + principalPayment;
                         closingBalance = 0;
@@ -5646,7 +5655,7 @@
                 if (interestPayment > 0) {
                     if (yearData.developmentMonths > 0 && !yearData.repaymentMonths) {
                         interestDisplay = formatCurrency(interestPayment) + ' (cap)';
-                    } else if (yearData.developmentMonths > 0 && yearData.repaymentMonths > 0) {
+                    } else if (yearData.developmentMonths > 0 && yearData.repaymentMonths > 0 && results.params.developmentInterest !== 'capitalized') {
                         const devPortion = developmentInterest;
                         const repayPortion = interestPayment - devPortion;
                         interestDisplay = formatCurrency(devPortion) + ' (cap) + (' + formatCurrency(repayPortion) + ')';
@@ -5689,7 +5698,8 @@
             }
             
             // Update footer totals
-            document.getElementById('totalOpeningBalance').textContent = formatCurrency(initialLoanAmount);
+            const displayOpeningBalance = results.params.developmentInterest === 'capitalized' ? adjustedLoanAmount : initialLoanAmount;
+            document.getElementById('totalOpeningBalance').textContent = formatCurrency(displayOpeningBalance);
             document.getElementById('totalInterestPaid').textContent = '(' + formatCurrency(totalInterest) + ')';
             document.getElementById('totalPrincipalPaid').textContent = '(' + formatCurrency(totalPrincipal) + ')';
             document.getElementById('totalPaymentsMade').textContent = '(' + formatCurrency(totalPayments) + ')';
@@ -5728,13 +5738,18 @@
                     const cell = document.createElement('td');
                     
                     try {
-                        // Calculate profit for this combination
-                        const profit = calculateProfitForParams({
+                        // Calculate net income for this combination (includes interest expense)
+                        const profit = calculateNetIncomeForParams({
                             occupancyRate: occupancy,
                             hourlyRate: rate
                         });
                         
-                        console.log(`Profit for ${occupancy}% occupancy and €${rate}/hour: €${profit}`);
+                        console.log(`Net Income for ${occupancy}% occupancy and €${rate}/hour: €${profit}`);
+                        
+                        // Debug: Compare with base case (50% occupancy, €35/hour)
+                        if (occupancy === 50 && rate === 35) {
+                            console.log(`🔍 Base Case Debug - 50% occupancy, €35/hour: €${profit} (should match P&L Year 2: ~€742,815)`);
+                        }
                         
                         if (profit !== null && !isNaN(profit)) {
                             cell.textContent = formatCurrency(profit);
@@ -5970,7 +5985,7 @@
                 'hourlyRate', 'occupancyRate', 'hoursPerDay', 'daysPerYear', 'landRental',
                 'maintenancePerCourt', 'managerSalary', 'instructorSalary', 'receptionSalary',
                 'maintenanceStaffSalary', 'proShopRevenue', 'fbRevenue', 'eventsPerYear',
-                'revenuePerEvent', 'waterCost', 'electricityCost'
+                'revenuePerEvent', 'waterCost', 'electricityCost', 'insurancePerCourt'
             ];
             
             // Check if all required elements exist
@@ -6009,50 +6024,100 @@
             if (params.fbRevenue !== undefined) currentParams.fbRevenue = params.fbRevenue;
             if (params.proShopRevenue !== undefined) currentParams.proShopRevenue = params.proShopRevenue;
 
-            const courtRentalRevenue = currentParams.numCourts * currentParams.hourlyRate * currentParams.hoursPerDay * 
-                                      currentParams.daysPerYear * currentParams.occupancyRate;
+            // Calculate gross court revenue first (what customers pay, VAT inclusive)
+            const grossCourtRevenue = currentParams.numCourts * currentParams.hourlyRate * currentParams.hoursPerDay * 
+                                     currentParams.daysPerYear * currentParams.occupancyRate;
+            
+            // Get VAT and Playtomic commission rates
+            const vatRate = parseFloat(document.getElementById('vatRate').value);
+            const playtomicCommission = parseFloat(document.getElementById('playtomicCommission').value);
+            
+            // VAT calculation (VAT is included in gross price)
+            const vatAmount = grossCourtRevenue * (vatRate / (100 + vatRate));
+            
+            // Playtomic commission (on gross revenue before VAT deduction)
+            const playtomicCommissionAmount = grossCourtRevenue * (playtomicCommission / 100);
+            
+            // Net court revenue (after both VAT and Playtomic)
+            const netCourtRevenue = grossCourtRevenue - vatAmount - playtomicCommissionAmount;
+            
             const eventsRevenue = currentParams.eventsPerYear * currentParams.revenuePerEvent;
-            const totalRevenue = courtRentalRevenue + currentParams.proShopRevenue + 
+            
+            // Total net revenue (court + ancillary, assuming ancillary is net)
+            const totalRevenue = netCourtRevenue + currentParams.proShopRevenue + 
                                 currentParams.fbRevenue + eventsRevenue;
 
             const maintenanceCost = currentParams.numCourts * currentParams.maintenancePerCourt;
             const totalSalaries = currentParams.managerSalary + currentParams.instructorSalary + 
                                  currentParams.receptionSalary + currentParams.maintenanceStaffSalary;
-            // Scale utilities with number of courts (60% fixed, 40% per court)
-            const baseWaterCost = parseFloat(unformatNumberInput(document.getElementById('waterCost').value));
-            const baseElectricityCost = parseFloat(unformatNumberInput(document.getElementById('electricityCost').value));
-            const baseNumCourts = 8; // Default courts for baseline costs
+            // Calculate per-court costs
+            const waterCostPerCourt = parseFloat(unformatNumberInput(document.getElementById('waterCost').value));
+            const electricityCostPerCourt = parseFloat(unformatNumberInput(document.getElementById('electricityCost').value));
+            const insuranceCostPerCourt = parseFloat(unformatNumberInput(document.getElementById('insurancePerCourt').value));
             
-            const waterCost = baseWaterCost * (0.6 + 0.4 * (currentParams.numCourts / baseNumCourts));
-            const electricityCost = baseElectricityCost * (0.6 + 0.4 * (currentParams.numCourts / baseNumCourts));
+            const totalWaterCost = currentParams.numCourts * waterCostPerCourt;
+            const totalElectricityCost = currentParams.numCourts * electricityCostPerCourt;
+            const totalInsuranceCost = currentParams.numCourts * insuranceCostPerCourt;
             
-            const totalOperatingCosts = currentParams.landRental + maintenanceCost + totalSalaries + waterCost + electricityCost;
+            const totalOperatingCosts = currentParams.landRental + maintenanceCost + totalSalaries + totalWaterCost + totalElectricityCost + totalInsuranceCost;
 
             return totalRevenue - totalOperatingCosts;
         }
 
+        function calculateNetIncomeForParams(params) {
+            // Get operating profit first
+            const operatingProfit = calculateProfitForParams(params);
+            if (operatingProfit === null) return null;
+            
+            // Calculate interest expense
+            const totalInvestment = (params.numCourts || parseInt(document.getElementById('numCourts').value)) * 
+                                   parseFloat(unformatNumberInput(document.getElementById('costPerCourt').value)) +
+                                   parseFloat(unformatNumberInput(document.getElementById('infrastructureCost').value)) +
+                                   parseFloat(unformatNumberInput(document.getElementById('additionalFacilities').value));
+                                   
+            const financingPercentage = parseFloat(document.getElementById('financingPercentage').value) / 100;
+            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
+            const loanAmount = totalInvestment * financingPercentage;
+            
+            // Calculate development interest if applicable
+            const developmentMonths = parseInt(document.getElementById('developmentMonths').value);
+            const developmentInterest = document.getElementById('developmentInterest').value;
+            
+            let adjustedLoanAmount = loanAmount;
+            if (developmentInterest === 'capitalized' && developmentMonths > 0) {
+                const developmentInterestAmount = loanAmount * interestRate * (developmentMonths / 12);
+                adjustedLoanAmount = loanAmount + developmentInterestAmount;
+            }
+            
+            // Annual interest expense (simplified - assuming average loan balance)
+            const annualInterestExpense = adjustedLoanAmount * interestRate;
+            
+            // Net income = Operating profit - Interest expense
+            return operatingProfit - annualInterestExpense;
+        }
+
         function calculatePaybackForParams(params) {
-            const profit = calculateProfitForParams(params);
+            const netIncome = calculateNetIncomeForParams(params);
             const investment = (params.numCourts || parseInt(document.getElementById('numCourts').value)) * 
                               parseFloat(unformatNumberInput(document.getElementById('costPerCourt').value)) +
                               parseFloat(unformatNumberInput(document.getElementById('infrastructureCost').value)) +
                               parseFloat(unformatNumberInput(document.getElementById('additionalFacilities').value));
             
-            return profit > 0 ? investment / profit : 99; // Return high number if no profit
+            return netIncome > 0 ? investment / netIncome : 99; // Return high number if no profit
         }
         
         function calculateProjectPaybackForParams(params) {
-            const profit = calculateProfitForParams(params);
+            const netIncome = calculateNetIncomeForParams(params);
             const totalInvestment = (params.numCourts || parseInt(document.getElementById('numCourts').value)) * 
                                    parseFloat(unformatNumberInput(document.getElementById('costPerCourt').value)) +
                                    parseFloat(unformatNumberInput(document.getElementById('infrastructureCost').value)) +
                                    parseFloat(unformatNumberInput(document.getElementById('additionalFacilities').value));
             
-            return profit > 0 ? totalInvestment / profit : 99; // Return high number if no profit
+            return netIncome > 0 ? totalInvestment / netIncome : 99; // Return high number if no profit
         }
         
         function calculateEquityPaybackForParams(params) {
-            const profit = calculateProfitForParams(params);
+            const profit = calculateProfitForParams(params); // Use operating profit for equity calculation
             
             // Calculate total investment
             const totalInvestment = (params.numCourts || parseInt(document.getElementById('numCourts').value)) * 
@@ -6168,15 +6233,34 @@
             
             // Calculate similar to main calculateModel function
             const totalInvestment = (currentParams.numCourts * currentParams.costPerCourt) + currentParams.infrastructureCost + currentParams.additionalFacilities;
-            const courtRentalRevenue = currentParams.numCourts * currentParams.hourlyRate * currentParams.hoursPerDay * 
-                                      currentParams.daysPerYear * currentParams.occupancyRate;
+            
+            // Gross court rental revenue (what customers pay, VAT inclusive)
+            const grossCourtRevenue = currentParams.numCourts * currentParams.hourlyRate * currentParams.hoursPerDay * 
+                                     currentParams.daysPerYear * currentParams.occupancyRate;
+            
+            // Get VAT and Playtomic commission rates
+            const vatRate = parseFloat(document.getElementById('vatRate').value);
+            const playtomicCommission = parseFloat(document.getElementById('playtomicCommission').value);
+            
+            // VAT calculation (VAT is included in gross price)
+            const vatAmount = grossCourtRevenue * (vatRate / (100 + vatRate));
+            
+            // Playtomic commission (on gross revenue before VAT deduction)
+            const playtomicCommissionAmount = grossCourtRevenue * (playtomicCommission / 100);
+            
+            // Net court revenue (after both VAT and Playtomic)
+            const netCourtRevenue = grossCourtRevenue - vatAmount - playtomicCommissionAmount;
+            
             const eventRevenue = currentParams.eventsPerYear * currentParams.revenuePerEvent;
-            const totalRevenue = courtRentalRevenue + currentParams.proShopRevenue + currentParams.fbRevenue + eventRevenue;
+            const totalRevenue = netCourtRevenue + currentParams.proShopRevenue + currentParams.fbRevenue + eventRevenue;
             
             const totalMaintenance = currentParams.numCourts * currentParams.maintenancePerCourt;
+            const totalWaterCost = currentParams.numCourts * currentParams.waterCost;
+            const totalElectricityCost = currentParams.numCourts * currentParams.electricityCost;
+            const totalInsuranceCost = currentParams.numCourts * parseFloat(unformatNumberInput(document.getElementById('insurancePerCourt').value));
             const totalSalaries = currentParams.managerSalary + currentParams.instructorSalary + 
                                 currentParams.receptionSalary + currentParams.maintenanceStaffSalary;
-            const totalExpenses = currentParams.landRental + totalMaintenance + totalSalaries + currentParams.waterCost + currentParams.electricityCost;
+            const totalExpenses = currentParams.landRental + totalMaintenance + totalSalaries + totalWaterCost + totalElectricityCost + totalInsuranceCost;
             
             // Financing calculations
             const loanAmount = totalInvestment * currentParams.financingPercentage;
@@ -6193,7 +6277,9 @@
                 ? loanAmount + developmentInterestTotal 
                 : loanAmount;
             
-            const monthlyLoanPayment = calculateLoanPayment(adjustedLoanAmount, currentParams.interestRate, currentParams.loanTerm);
+            const totalRepaymentMonths = (currentParams.loanTerm * 12) - currentParams.developmentMonths;
+            const adjustedLoanTerm = totalRepaymentMonths / 12;
+            const monthlyLoanPayment = calculateLoanPayment(adjustedLoanAmount, currentParams.interestRate, adjustedLoanTerm);
             const annualDebtService = monthlyLoanPayment * 12;
             
             const netProfit = totalRevenue - totalExpenses;
@@ -6239,15 +6325,34 @@
 
             // Calculate cash flows and IRR similar to main function
             const totalInvestment = (currentParams.numCourts * currentParams.costPerCourt) + currentParams.infrastructureCost + currentParams.additionalFacilities;
-            const courtRentalRevenue = currentParams.numCourts * currentParams.hourlyRate * currentParams.hoursPerDay * 
-                                      currentParams.daysPerYear * currentParams.occupancyRate;
+            
+            // Gross court rental revenue (what customers pay, VAT inclusive)
+            const grossCourtRevenue = currentParams.numCourts * currentParams.hourlyRate * currentParams.hoursPerDay * 
+                                     currentParams.daysPerYear * currentParams.occupancyRate;
+            
+            // Get VAT and Playtomic commission rates
+            const vatRate = parseFloat(document.getElementById('vatRate').value);
+            const playtomicCommission = parseFloat(document.getElementById('playtomicCommission').value);
+            
+            // VAT calculation (VAT is included in gross price)
+            const vatAmount = grossCourtRevenue * (vatRate / (100 + vatRate));
+            
+            // Playtomic commission (on gross revenue before VAT deduction)
+            const playtomicCommissionAmount = grossCourtRevenue * (playtomicCommission / 100);
+            
+            // Net court revenue (after both VAT and Playtomic)
+            const netCourtRevenue = grossCourtRevenue - vatAmount - playtomicCommissionAmount;
+            
             const eventRevenue = currentParams.eventsPerYear * currentParams.revenuePerEvent;
-            const totalRevenue = courtRentalRevenue + currentParams.proShopRevenue + currentParams.fbRevenue + eventRevenue;
+            const totalRevenue = netCourtRevenue + currentParams.proShopRevenue + currentParams.fbRevenue + eventRevenue;
             
             const totalMaintenance = currentParams.numCourts * currentParams.maintenancePerCourt;
+            const totalWaterCost = currentParams.numCourts * currentParams.waterCost;
+            const totalElectricityCost = currentParams.numCourts * currentParams.electricityCost;
+            const totalInsuranceCost = currentParams.numCourts * parseFloat(unformatNumberInput(document.getElementById('insurancePerCourt').value));
             const totalSalaries = currentParams.managerSalary + currentParams.instructorSalary + 
                                 currentParams.receptionSalary + currentParams.maintenanceStaffSalary;
-            const totalExpenses = currentParams.landRental + totalMaintenance + totalSalaries + currentParams.waterCost + currentParams.electricityCost;
+            const totalExpenses = currentParams.landRental + totalMaintenance + totalSalaries + totalWaterCost + totalElectricityCost + totalInsuranceCost;
             
             const loanAmount = totalInvestment * currentParams.financingPercentage;
             const equityInvestment = totalInvestment - loanAmount;
@@ -6263,7 +6368,9 @@
                 ? loanAmount + developmentInterestTotal 
                 : loanAmount;
             
-            const monthlyLoanPayment = calculateLoanPayment(adjustedLoanAmount, currentParams.interestRate, currentParams.loanTerm);
+            const totalRepaymentMonths = (currentParams.loanTerm * 12) - currentParams.developmentMonths;
+            const adjustedLoanTerm = totalRepaymentMonths / 12;
+            const monthlyLoanPayment = calculateLoanPayment(adjustedLoanAmount, currentParams.interestRate, adjustedLoanTerm);
             const annualDebtService = monthlyLoanPayment * 12;
             
             const netProfit = totalRevenue - totalExpenses;
@@ -6858,18 +6965,26 @@ Best regards`;
                 ]
             },
             waterCost: {
-                title: "Annual Water Cost (€8,000)",
-                explanation: "Water consumption for court cleaning, irrigation of surrounding areas, and facility maintenance based on Cyprus utility rates.",
+                title: "Water Cost per Court/Year (€1,000)",
+                explanation: "Water consumption per court for cleaning, irrigation of surrounding areas, and facility maintenance based on Cyprus utility rates.",
                 sources: [
                     { text: "Cyprus Utility Costs", url: "https://dojobusiness.com/blogs/news/padel-center-budget-utilities" },
                     { text: "Padel Center Operating Costs", url: "https://www.reddit.com/r/padel/comments/14ox30e/thinking_about_padel_club_expenses_does_anyone/" }
                 ]
             },
             electricityCost: {
-                title: "Annual Electricity Cost (€12,000)",
-                explanation: "LED court lighting, facility lighting, HVAC for indoor areas, and equipment operation based on Cyprus commercial electricity rates.",
+                title: "Electricity Cost per Court/Year (€1,875)",
+                explanation: "LED court lighting per court, proportional facility lighting, HVAC for indoor areas, and equipment operation based on Cyprus commercial electricity rates.",
                 sources: [
                     { text: "Cyprus Utility Costs", url: "https://dojobusiness.com/blogs/news/padel-center-budget-utilities" }
+                ]
+            },
+            insurancePerCourt: {
+                title: "Insurance per Court/Year (€400)",
+                explanation: "General liability insurance coverage per court including property damage, public liability, and equipment coverage. Covers both indoor and outdoor court operations.",
+                sources: [
+                    { text: "Sports Facility Insurance", url: "https://www.sportsinsurance.com/sports-facility-insurance/" },
+                    { text: "Padel Court Insurance Costs", url: "https://www.reddit.com/r/padel/comments/14ox30e/thinking_about_padel_club_expenses_does_anyone/" }
                 ]
             },
             vatRate: {
@@ -7050,7 +7165,10 @@ Best regards`;
                 const salaryBreakdown = `${formatCurrency(results.params.managerSalary)} + ${formatCurrency(results.params.instructorSalary)} + ${formatCurrency(results.params.receptionSalary)} + ${formatCurrency(results.params.maintenanceStaffSalary)} = ${formatCurrency(results.totalSalaries)}`;
                 document.getElementById('formulaSalaries').textContent = salaryBreakdown;
                 
-                const utilitiesBreakdown = `${formatCurrency(results.params.waterCost)} + ${formatCurrency(results.params.electricityCost)} = ${formatCurrency(results.params.waterCost + results.params.electricityCost)}`;
+                const totalWaterCost = results.params.numCourts * results.params.waterCost;
+                const totalElectricityCost = results.params.numCourts * results.params.electricityCost;
+                const totalInsuranceCost = results.params.numCourts * results.params.insurancePerCourt;
+                const utilitiesBreakdown = `${formatCurrency(totalWaterCost)} + ${formatCurrency(totalElectricityCost)} + ${formatCurrency(totalInsuranceCost)} = ${formatCurrency(totalWaterCost + totalElectricityCost + totalInsuranceCost)}`;
                 document.getElementById('formulaUtilities').textContent = utilitiesBreakdown;
                 document.getElementById('formulaTotalCosts').textContent = formatCurrency(results.totalExpenses);
                 
