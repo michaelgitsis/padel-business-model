@@ -4645,19 +4645,8 @@
                 document.getElementById('reportDevelopmentPeriod').textContent = developmentPeriod + ' months';
                 document.getElementById('reportDebtService').textContent = formatCurrency(monthlyDebtService);
                 
-                // Performance metrics
-                document.getElementById('reportProjectProfit').textContent = formatCurrency(results.netProfit);
-                document.getElementById('reportProjectROI').textContent = results.annualROI.toFixed(1) + '%';
-                document.getElementById('reportTotalProjectROI').textContent = results.cumulativeROI.toFixed(1) + '%';
-                document.getElementById('reportProjectIRR').textContent = results.projectIRR.toFixed(1) + '%';
-                document.getElementById('reportProjectPayback').textContent = results.paybackPeriod.toFixed(1) + ' years';
-                
-                const annualCashFlowToEquity = results.netProfit - (monthlyDebtService * 12);
-                document.getElementById('reportEquityCashFlow').textContent = formatCurrency(annualCashFlowToEquity);
-                document.getElementById('reportEquityROI').textContent = results.annualEquityROI.toFixed(1) + '%';
-                document.getElementById('reportEquityMultiple').textContent = results.equityMultiple.toFixed(1) + 'x';
-                document.getElementById('reportEquityIRR').textContent = results.equityIRR.toFixed(1) + '%';
-                document.getElementById('reportEquityPayback').textContent = results.equityPaybackPeriod.toFixed(1) + ' years';
+                // Update Financial Performance metrics
+                updateFinancialPerformance(results);
             }
         }
 
@@ -5415,6 +5404,24 @@
             }
         }
 
+        function updateFinancialPerformance(results) {
+            // Performance metrics
+            const monthlyDebtService = calculateLoanPayment(results.adjustedLoanAmount, results.params.interestRate, (results.params.loanTerm * 12 - results.params.developmentMonths) / 12);
+            
+            document.getElementById('reportProjectProfit').textContent = formatCurrency(results.netProfit);
+            document.getElementById('reportProjectROI').textContent = results.annualROI.toFixed(1) + '%';
+            document.getElementById('reportTotalProjectROI').textContent = results.cumulativeROI.toFixed(1) + '%';
+            document.getElementById('reportProjectIRR').textContent = results.projectIRR.toFixed(1) + '%';
+            document.getElementById('reportProjectPayback').textContent = results.paybackPeriod.toFixed(1) + ' years';
+            
+            const annualCashFlowToEquity = results.netProfit - (monthlyDebtService * 12);
+            document.getElementById('reportEquityCashFlow').textContent = formatCurrency(annualCashFlowToEquity);
+            document.getElementById('reportEquityROI').textContent = results.annualEquityROI.toFixed(1) + '%';
+            document.getElementById('reportEquityMultiple').textContent = results.equityMultiple.toFixed(1) + 'x';
+            document.getElementById('reportEquityIRR').textContent = results.equityIRR.toFixed(1) + '%';
+            document.getElementById('reportEquityPayback').textContent = results.equityPaybackPeriod.toFixed(1) + ' years';
+        }
+
         function updateReport() {
             console.log('Updating report with current parameters...');
             
@@ -5442,6 +5449,9 @@
                 
                 // Update Financing Structure
                 updateFinancingStructure(results);
+                
+                // Update Financial Performance
+                updateFinancialPerformance(results);
                 
                 console.log('Report updated successfully');
             } catch (error) {
