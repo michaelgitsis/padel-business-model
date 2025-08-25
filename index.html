@@ -4009,8 +4009,6 @@
                 
                 remainingRepaymentMonths -= yearData.repaymentMonths;
                 schedule.push(yearData);
-                
-                if (remainingRepaymentMonths <= 0) break;
             }
             
             return schedule;
@@ -4522,12 +4520,14 @@
                 let netIncome = 0;
                 let netCashFlow = 0;
                 
-                // Calculate proportional income/expenses
+                // Calculate proportional revenue/expenses based on operational months
                 const operationalMonths = 12 - yearData.developmentMonths;
+                let revenue = 0;
+                let expenses = 0;
+                
                 if (operationalMonths > 0) {
-                    const revenue = results.totalRevenue * (operationalMonths / 12);
-                    const expenses = results.totalExpenses * (operationalMonths / 12);
-                    netIncome = revenue - expenses;
+                    revenue = results.totalRevenue * (operationalMonths / 12);
+                    expenses = results.totalExpenses * (operationalMonths / 12);
                 }
                 
                 // Calculate debt service for repayment months
@@ -4545,10 +4545,10 @@
                             totalDebtService = interestExpense + principalPayment;
                         }
                     }
-                    
-                    // Adjust net income for interest expense
-                    netIncome -= interestExpense;
                 }
+                
+                // Calculate net income using same formula as P&L table
+                netIncome = revenue - expenses - interestExpense;
                 
                 // Calculate cash flow
                 if (yearData.year === 1 && yearData.developmentMonths === 12) {
