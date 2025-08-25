@@ -1031,6 +1031,79 @@
             margin: 0;
         }
 
+        /* Court Selector Styles */
+        .court-selector-container {
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+        }
+
+        .court-selector-header {
+            margin-bottom: 1rem;
+        }
+
+        .court-selector-header h3 {
+            color: var(--text);
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .court-selector-header h3 i {
+            color: var(--primary);
+        }
+
+        .court-selector-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .court-selector-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .court-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 80px;
+            white-space: nowrap;
+        }
+
+        .court-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+        }
+
+        .court-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+        }
+
+        .court-btn.active:hover {
+            transform: translateY(0);
+        }
+
         .sensitivity-table-wrapper {
             overflow-x: auto;
             margin-bottom: 1rem;
@@ -1490,6 +1563,23 @@
                 text-align: center;
                 margin-bottom: 1rem;
                 color: var(--primary);
+            }
+
+            /* Court Selector Mobile */
+            .court-selector-container {
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .court-selector-buttons {
+                gap: 0.5rem;
+            }
+
+            .court-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.75rem;
+                min-width: 60px;
+                flex: 1;
             }
 
             /* Sensitivity Tables Mobile */
@@ -4169,7 +4259,22 @@
 
             <!-- Sensitivity Tab -->
             <div id="sensitivity-tab" class="tab-panel">
-                <h2 style="margin-bottom: 2rem; color: var(--text);">Sensitivity Analysis</h2>
+                <h2 style="margin-bottom: 1rem; color: var(--text);">Sensitivity Analysis</h2>
+                
+                <!-- Court Number Selector -->
+                <div class="court-selector-container">
+                    <div class="court-selector-header">
+                        <h3><i class="fas fa-building"></i> Number of Courts for Analysis</h3>
+                        <p class="court-selector-description">Select the number of courts to analyze. All tables will update automatically to reflect the chosen facility size.</p>
+                    </div>
+                    <div class="court-selector-buttons">
+                        <button class="court-btn" data-courts="4">4 Courts</button>
+                        <button class="court-btn" data-courts="6">6 Courts</button>
+                        <button class="court-btn" data-courts="8">8 Courts</button>
+                        <button class="court-btn" data-courts="10">10 Courts</button>
+                        <button class="court-btn active" data-courts="12">12 Courts</button>
+                    </div>
+                </div>
                 
                 <div class="sensitivity-container">
                     <!-- Primary Sensitivity Table: Occupancy vs Price -->
@@ -4919,6 +5024,7 @@
     <script>
         // Initialize variables
         let autoSaveTimer;
+        let selectedCourtsForSensitivity = 12; // Default to 12 courts for sensitivity analysis
 
         // Theme toggle
         function toggleTheme() {
@@ -5888,6 +5994,48 @@
             
             // Update charts if they exist
             updateBankPresentationCharts(results);
+        }
+
+        // Handle court selector changes
+        function selectCourtsForSensitivity(numCourts) {
+            // Update the global variable
+            selectedCourtsForSensitivity = parseInt(numCourts);
+            
+            // Update button states
+            const courtButtons = document.querySelectorAll('.court-btn');
+            courtButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (parseInt(btn.dataset.courts) === selectedCourtsForSensitivity) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update table headers to show current court count
+            const sensitivitySections = document.querySelectorAll('.sensitivity-section h3');
+            sensitivitySections.forEach(header => {
+                if (header.innerHTML.includes('Annual Net Income') || 
+                    header.innerHTML.includes('Project Payback') || 
+                    header.innerHTML.includes('Equity Payback') ||
+                    header.innerHTML.includes('Shareholder ROI') ||
+                    header.innerHTML.includes('Shareholder IRR')) {
+                    
+                    // Add or update court count indicator in header
+                    let courtIndicator = header.querySelector('.court-indicator');
+                    if (!courtIndicator) {
+                        courtIndicator = document.createElement('span');
+                        courtIndicator.className = 'court-indicator';
+                        courtIndicator.style.fontSize = '0.8em';
+                        courtIndicator.style.color = 'var(--text-secondary)';
+                        courtIndicator.style.marginLeft = '0.5rem';
+                        header.appendChild(courtIndicator);
+                    }
+                    courtIndicator.textContent = `(${selectedCourtsForSensitivity} Courts)`;
+                }
+            });
+            
+            // Regenerate all sensitivity tables with new court count
+            console.log(`🏗️ Regenerating sensitivity tables for ${selectedCourtsForSensitivity} courts`);
+            generateSensitivityTables();
         }
         
         // Update ROI bars with animation
@@ -6934,7 +7082,8 @@
                         // Calculate net income for this combination (includes interest expense)
                         const profit = calculateNetIncomeForParams({
                             occupancyRate: occupancy,
-                            hourlyRate: rate
+                            hourlyRate: rate,
+                            numCourts: selectedCourtsForSensitivity
                         });
                         
                         console.log(`Net Income for ${occupancy}% occupancy and €${rate}/hour: €${profit}`);
@@ -7003,7 +7152,8 @@
                         // Calculate project payback period for this combination
                         const payback = calculateProjectPaybackForParams({
                             occupancyRate: occupancy,
-                            hourlyRate: rate
+                            hourlyRate: rate,
+                            numCourts: selectedCourtsForSensitivity
                         });
                         
                         cell.textContent = payback > 50 ? '50+' : payback.toFixed(1) + 'y';
@@ -7058,7 +7208,8 @@
                         // Calculate equity payback period for this combination
                         const payback = calculateEquityPaybackForParams({
                             occupancyRate: occupancy,
-                            hourlyRate: rate
+                            hourlyRate: rate,
+                            numCourts: selectedCourtsForSensitivity
                         });
                         
                         cell.textContent = payback > 50 ? '50+' : payback.toFixed(1) + 'y';
@@ -7108,7 +7259,8 @@
                     // Calculate equity ROI for this combination
                     const equityROI = calculateEquityROIForParams({
                         financingPercentage: financing / 100,
-                        occupancyRate: occupancy
+                        occupancyRate: occupancy,
+                        numCourts: selectedCourtsForSensitivity
                     });
                     
                     cell.textContent = equityROI.toFixed(1) + 'x';
@@ -7151,7 +7303,8 @@
                     // Calculate equity IRR for this combination
                     const equityIRR = calculateEquityIRRForParams({
                         financingPercentage: financing / 100,
-                        occupancyRate: occupancy
+                        occupancyRate: occupancy,
+                        numCourts: selectedCourtsForSensitivity
                     });
                     
                     cell.textContent = equityIRR.toFixed(1) + '%';
@@ -7396,7 +7549,7 @@
         function calculateEquityROIForParams(params) {
             // Get current parameters and merge with provided params
             const currentParams = {
-                numCourts: parseInt(document.getElementById('numCourts').value),
+                numCourts: params.numCourts !== undefined ? params.numCourts : parseInt(document.getElementById('numCourts').value),
                 costPerCourt: parseFloat(unformatNumberInput(document.getElementById('costPerCourt').value)),
                 infrastructureCost: parseFloat(unformatNumberInput(document.getElementById('infrastructureCost').value)),
                 additionalFacilities: parseFloat(unformatNumberInput(document.getElementById('additionalFacilities').value)),
@@ -7489,7 +7642,7 @@
         function calculateEquityIRRForParams(params) {
             // Similar to calculateEquityROIForParams but returns IRR
             const currentParams = {
-                numCourts: parseInt(document.getElementById('numCourts').value),
+                numCourts: params.numCourts !== undefined ? params.numCourts : parseInt(document.getElementById('numCourts').value),
                 costPerCourt: parseFloat(unformatNumberInput(document.getElementById('costPerCourt').value)),
                 infrastructureCost: parseFloat(unformatNumberInput(document.getElementById('infrastructureCost').value)),
                 additionalFacilities: parseFloat(unformatNumberInput(document.getElementById('additionalFacilities').value)),
@@ -8770,6 +8923,15 @@ Best regards`;
             
             // Load saved scenarios into the grid
             loadSavedScenariosGrid();
+            
+            // Initialize court selector event handlers
+            const courtButtons = document.querySelectorAll('.court-btn');
+            courtButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const numCourts = parseInt(btn.dataset.courts);
+                    selectCourtsForSensitivity(numCourts);
+                });
+            });
         });
     </script>
 
