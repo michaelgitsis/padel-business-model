@@ -4313,6 +4313,9 @@
             // Update calculation breakdown
             updateCalculationBreakdown(results);
             
+            // Update reports section
+            updateReport();
+            
             // Update sensitivity highlights
             if (typeof updateSensitivityHighlights === 'function') {
                 updateSensitivityHighlights();
