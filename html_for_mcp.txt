@@ -2597,7 +2597,7 @@
                                 <label>Loan Term (years)
                                     <button class="info-btn" onclick="showInfoModal('loanTerm')" type="button">i</button>
                                 </label>
-                                <input type="number" id="loanTerm" min="3" max="10" value="5" step="1">
+                                <input type="number" id="loanTerm" min="5" max="5" value="5" step="1" readonly>
                             </div>
                             <div class="parameter">
                                 <label>Project Period (years)
@@ -2901,11 +2901,11 @@
                         <tfoot>
                             <tr>
                                 <th>Total</th>
-                                <th class="number" id="totalOpeningBalance">-</th>
+                                <th>-</th>
                                 <th class="number" id="totalInterestPaid">€0</th>
                                 <th class="number" id="totalPrincipalPaid">€0</th>
                                 <th class="number" id="totalPaymentsMade">€0</th>
-                                <th class="number" id="totalClosingBalance">-</th>
+                                <th>-</th>
                             </tr>
                         </tfoot>
                     </table>
@@ -3980,42 +3980,6 @@
                    (Math.pow(1 + monthlyRate, numPayments) - 1);
         }
 
-        // Calculate repayment schedule based on development period
-        function calculateRepaymentSchedule(developmentMonths, loanTermYears, projectPeriodYears) {
-            const totalRepaymentMonths = (loanTermYears * 12) - developmentMonths;
-            const developmentYears = Math.ceil(developmentMonths / 12);
-            
-            let schedule = [];
-            let remainingRepaymentMonths = totalRepaymentMonths;
-            
-            for (let year = 1; year <= projectPeriodYears; year++) {
-                let yearData = {
-                    year: year,
-                    isDevelopment: false,
-                    repaymentMonths: 0,
-                    developmentMonths: 0
-                };
-                
-                if (year <= developmentYears) {
-                    // This year has some development period
-                    const devMonthsInYear = Math.min(developmentMonths - ((year - 1) * 12), 12);
-                    yearData.developmentMonths = devMonthsInYear;
-                    yearData.repaymentMonths = Math.max(0, Math.min(12 - devMonthsInYear, remainingRepaymentMonths));
-                    yearData.isDevelopment = devMonthsInYear > 0;
-                } else {
-                    // Pure repayment year
-                    yearData.repaymentMonths = Math.min(12, remainingRepaymentMonths);
-                }
-                
-                remainingRepaymentMonths -= yearData.repaymentMonths;
-                schedule.push(yearData);
-                
-                if (remainingRepaymentMonths <= 0) break;
-            }
-            
-            return schedule;
-        }
-
         // Development interest calculation
         function calculateDevelopmentInterest(loanAmount, annualRate, months, isCapitalized) {
             if (loanAmount === 0 || annualRate === 0 || months === 0) return 0;
@@ -4301,9 +4265,6 @@
             // Update tables
             updateTables(results);
             
-            // Update Financing Structure
-            updateFinancingStructure(results);
-            
             // Update scenarios
             updateScenarios();
             
@@ -4437,64 +4398,32 @@
             let cumulative = 0;
             
             // Calculate annual interest and principal for each year
-            const initialLoanAmount = results.totalInvestment * results.params.financingPercentage;
-            const adjustedLoanAmount = results.adjustedLoanAmount;
-            const repaymentYears = 4; // 4 years of payments (Years 2-5)
-            const monthlyPayment = calculateLoanPayment(adjustedLoanAmount, results.params.interestRate, repaymentYears);
-            const annualPayment = monthlyPayment * 12;
+            const loanBalance = results.adjustedLoanAmount;
+            const annualPayment = results.annualDebtService;
             const interestRate = results.params.interestRate;
             
-            let remainingBalance = adjustedLoanAmount;
+            let remainingBalance = loanBalance;
             
-            // Calculate dynamic repayment schedule for P&L
-            const repaymentSchedule = calculateRepaymentSchedule(results.params.developmentMonths, results.params.loanTerm, results.params.projectPeriod);
-            
-            for (let i = 0; i < repaymentSchedule.length; i++) {
-                const yearData = repaymentSchedule[i];
-                let revenue = 0;
-                let expenses = 0;
-                let interestExpense = 0;
-                let principalPayment = 0;
-                
-                // Calculate proportional revenue/expenses based on operational months
-                const operationalMonths = 12 - yearData.developmentMonths;
-                if (operationalMonths > 0) {
-                    revenue = results.totalRevenue * (operationalMonths / 12);
-                    expenses = results.totalExpenses * (operationalMonths / 12);
-                }
-                
-                // Calculate interest expense for repayment months
-                if (yearData.repaymentMonths > 0) {
-                    interestExpense = remainingBalance * interestRate * (yearData.repaymentMonths / 12);
-                    const annualPayment = monthlyPayment * yearData.repaymentMonths;
-                    principalPayment = Math.min(annualPayment - interestExpense, remainingBalance);
-                    
-                    // Final payment adjustment
-                    if (i === repaymentSchedule.length - 1 && remainingBalance > 0) {
-                        const finalBalance = Math.max(0, remainingBalance - principalPayment);
-                        if (finalBalance > 0 && finalBalance < 100) {
-                            principalPayment += finalBalance;
-                        }
-                    }
-                }
+            for (let year = 1; year <= parseInt(document.getElementById('projectPeriod').value); year++) {
+                // Calculate interest expense for this year (on remaining balance)
+                const interestExpense = remainingBalance * interestRate;
+                const principalPayment = Math.min(annualPayment - interestExpense, remainingBalance);
                 
                 // Net income = Revenue - Operating Expenses - Interest Expense
-                const netIncome = revenue - expenses - interestExpense;
+                const netIncome = results.totalRevenue - results.totalExpenses - interestExpense;
                 cumulative += netIncome;
                 
                 // Update remaining balance
-                if (principalPayment > 0) {
-                    remainingBalance = Math.max(0, remainingBalance - principalPayment);
-                }
+                remainingBalance = Math.max(0, remainingBalance - principalPayment);
                 
                 projectionHTML += `
                     <tr>
-                        <td>Year ${yearData.year}</td>
-                        <td class="number">${revenue > 0 ? formatCurrency(revenue) : '€0'}</td>
-                        <td class="number">${expenses > 0 ? '(' + formatCurrency(expenses) + ')' : '€0'}</td>
-                        <td class="number">${interestExpense > 0 ? '(' + formatCurrency(interestExpense) + ')' : '€0'}</td>
-                        <td class="number">${netIncome > 0 ? formatCurrency(netIncome) : (netIncome < 0 ? '(' + formatCurrency(Math.abs(netIncome)) + ')' : '€0')}</td>
-                        <td class="number">${cumulative > 0 ? formatCurrency(cumulative) : (cumulative < 0 ? '(' + formatCurrency(Math.abs(cumulative)) + ')' : '€0')}</td>
+                        <td>Year ${year}</td>
+                        <td class="number">${formatCurrency(results.totalRevenue)}</td>
+                        <td class="number">${formatCurrency(results.totalExpenses)}</td>
+                        <td class="number">${formatCurrency(interestExpense)}</td>
+                        <td class="number">${formatCurrency(netIncome)}</td>
+                        <td class="number">${formatCurrency(cumulative)}</td>
                     </tr>
                 `;
             }
@@ -4507,74 +4436,30 @@
             // Reset for cash flow calculations
             remainingBalance = loanBalance;
             
-            // Reset and calculate cash flow with dynamic schedule
-            remainingBalance = adjustedLoanAmount;
-            const cashFlowRepaymentSchedule = calculateRepaymentSchedule(results.params.developmentMonths, results.params.loanTerm, results.params.projectPeriod);
-            
-            for (let i = 0; i < cashFlowRepaymentSchedule.length; i++) {
-                const yearData = cashFlowRepaymentSchedule[i];
-                let interestExpense = 0;
-                let principalPayment = 0;
-                let totalDebtService = 0;
-                let netIncome = 0;
-                let netCashFlow = 0;
+            for (let year = 1; year <= parseInt(document.getElementById('projectPeriod').value); year++) {
+                // Calculate interest expense for this year (on remaining balance)
+                const interestExpense = remainingBalance * interestRate;
+                const principalPayment = Math.min(annualPayment - interestExpense, remainingBalance);
                 
-                // Calculate proportional income/expenses
-                const operationalMonths = 12 - yearData.developmentMonths;
-                if (operationalMonths > 0) {
-                    const revenue = results.totalRevenue * (operationalMonths / 12);
-                    const expenses = results.totalExpenses * (operationalMonths / 12);
-                    netIncome = revenue - expenses;
-                }
+                // Net income = Revenue - Operating Expenses - Interest Expense
+                const netIncome = results.totalRevenue - results.totalExpenses - interestExpense;
                 
-                // Calculate debt service for repayment months
-                if (yearData.repaymentMonths > 0) {
-                    interestExpense = remainingBalance * interestRate * (yearData.repaymentMonths / 12);
-                    const annualPayment = monthlyPayment * yearData.repaymentMonths;
-                    principalPayment = Math.min(annualPayment - interestExpense, remainingBalance);
-                    totalDebtService = interestExpense + principalPayment;
-                    
-                    // Final payment adjustment
-                    if (i === cashFlowRepaymentSchedule.length - 1 && remainingBalance > 0) {
-                        const finalBalance = Math.max(0, remainingBalance - principalPayment);
-                        if (finalBalance > 0 && finalBalance < 100) {
-                            principalPayment += finalBalance;
-                            totalDebtService = interestExpense + principalPayment;
-                        }
-                    }
-                    
-                    // Adjust net income for interest expense
-                    netIncome -= interestExpense;
-                }
-                
-                // Calculate cash flow
-                if (yearData.year === 1 && yearData.developmentMonths === 12) {
-                    // Pure development year - show investment outflow
-                    netCashFlow = -results.totalInvestment;
-                } else if (yearData.developmentMonths > 0) {
-                    // Mixed development/operational year - show partial investment and operations
-                    const investmentPortion = -results.totalInvestment * (yearData.developmentMonths / 12);
-                    netCashFlow = investmentPortion + netIncome + interestExpense - totalDebtService;
-                } else {
-                    // Pure operational year
-                    netCashFlow = netIncome + interestExpense - totalDebtService;
-                }
-                
+                // Cash flow = Net Income + Interest Expense - Total Debt Service
+                // (Interest is added back because it's a non-cash expense in this context)
+                const netCashFlow = netIncome + interestExpense - annualPayment;
                 cumulativeCashFlow += netCashFlow;
                 
                 // Update remaining balance
-                if (principalPayment > 0) {
-                    remainingBalance = Math.max(0, remainingBalance - principalPayment);
-                }
+                remainingBalance = Math.max(0, remainingBalance - principalPayment);
                 
                 cashFlowHTML += `
                     <tr>
-                        <td>Year ${yearData.year}</td>
-                        <td class="number">${netIncome > 0 ? formatCurrency(netIncome) : (netIncome < 0 ? '(' + formatCurrency(Math.abs(netIncome)) + ')' : '€0')}</td>
-                        <td class="number">${interestExpense > 0 ? formatCurrency(interestExpense) : '€0'}</td>
-                        <td class="number">${totalDebtService > 0 ? '(' + formatCurrency(totalDebtService) + ')' : '€0'}</td>
-                        <td class="number" style="${netCashFlow < 0 ? 'color: #e74c3c;' : ''}">${netCashFlow < 0 ? '(' + formatCurrency(Math.abs(netCashFlow)) + ')' : formatCurrency(netCashFlow)}</td>
-                        <td class="number" style="${cumulativeCashFlow < 0 ? 'color: #e74c3c;' : ''}">${cumulativeCashFlow < 0 ? '(' + formatCurrency(Math.abs(cumulativeCashFlow)) + ')' : formatCurrency(cumulativeCashFlow)}</td>
+                        <td>Year ${year}</td>
+                        <td class="number">${formatCurrency(netIncome)}</td>
+                        <td class="number">${formatCurrency(interestExpense)}</td>
+                        <td class="number">${formatCurrency(annualPayment)}</td>
+                        <td class="number">${formatCurrency(netCashFlow)}</td>
+                        <td class="number">${formatCurrency(cumulativeCashFlow)}</td>
                     </tr>
                 `;
             }
@@ -4594,9 +4479,9 @@
                 const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
                 const developmentPeriod = parseInt(document.getElementById('developmentMonths').value);
                 
-                // Use total investment for loan/equity split calculations
-                const baseLoanAmount = results.totalInvestment * financingPercentage;
-                const baseEquityAmount = results.totalInvestment * (1 - financingPercentage);
+                // Use base investment for loan/equity split calculations
+                const baseLoanAmount = results.baseInvestment * financingPercentage;
+                const baseEquityAmount = results.baseInvestment * (1 - financingPercentage);
                 const monthlyDebtService = calculateLoanPayment(results.adjustedLoanAmount, interestRate, 5);
                 
                 // Debug: Log values to console
@@ -4633,8 +4518,10 @@
                     `;
                 }
                 
-                // Calculate total for display (total investment is already the correct base amount)
-                const displayTotal = results.totalInvestment;
+                // Calculate total for display (base + development interest if capitalized)
+                const displayTotal = results.params.developmentInterest === 'capitalized' 
+                    ? results.totalInvestment + results.developmentInterestTotal
+                    : results.totalInvestment;
                 
                 document.getElementById('financingDetails').innerHTML = financingHTML;
                 document.getElementById('reportTotalInvestment').textContent = formatCurrency(displayTotal);
@@ -5105,14 +4992,7 @@
                 eventsPerYear: document.getElementById('eventsPerYear').value,
                 revenuePerEvent: unformatNumberInput(document.getElementById('revenuePerEvent').value),
                 waterCost: unformatNumberInput(document.getElementById('waterCost').value),
-                electricityCost: unformatNumberInput(document.getElementById('electricityCost').value),
-                financingPercentage: document.getElementById('financingPercentage').value,
-                interestRate: document.getElementById('interestRate').value,
-                loanTerm: document.getElementById('loanTerm').value,
-                developmentMonths: document.getElementById('developmentMonths').value,
-                developmentInterest: document.getElementById('developmentInterest').value,
-                vatRate: document.getElementById('vatRate').value,
-                playtomicCommission: document.getElementById('playtomicCommission').value
+                electricityCost: unformatNumberInput(document.getElementById('electricityCost').value)
             };
             
             localStorage.setItem('padelModelSettings', JSON.stringify(settings));
@@ -5141,16 +5021,7 @@
                     proShopRevenue: unformatNumberInput(document.getElementById('proShopRevenue').value),
                     fbRevenue: unformatNumberInput(document.getElementById('fbRevenue').value),
                     eventsPerYear: document.getElementById('eventsPerYear').value,
-                    revenuePerEvent: unformatNumberInput(document.getElementById('revenuePerEvent').value),
-                    waterCost: unformatNumberInput(document.getElementById('waterCost').value),
-                    electricityCost: unformatNumberInput(document.getElementById('electricityCost').value),
-                    financingPercentage: document.getElementById('financingPercentage').value,
-                    interestRate: document.getElementById('interestRate').value,
-                    loanTerm: document.getElementById('loanTerm').value,
-                    developmentMonths: document.getElementById('developmentMonths').value,
-                    developmentInterest: document.getElementById('developmentInterest').value,
-                    vatRate: document.getElementById('vatRate').value,
-                    playtomicCommission: document.getElementById('playtomicCommission').value
+                    revenuePerEvent: unformatNumberInput(document.getElementById('revenuePerEvent').value)
                 };
                 localStorage.setItem('padelModelSettings', JSON.stringify(settings));
             }, 1000);
@@ -5355,61 +5226,6 @@
         }
 
         // Update Report with current parameters
-        function updateFinancingStructure(results) {
-            const financingDetails = document.getElementById('financingDetails');
-            const reportTotalInvestment = document.getElementById('reportTotalInvestment');
-            
-            if (!financingDetails || !reportTotalInvestment) return;
-            
-            const financingPercentage = parseFloat(document.getElementById('financingPercentage').value) / 100;
-            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
-            const developmentPeriod = parseInt(document.getElementById('developmentMonths').value);
-            
-            // Use total investment for loan/equity split calculations
-            const baseLoanAmount = results.totalInvestment * financingPercentage;
-            const baseEquityAmount = results.totalInvestment * (1 - financingPercentage);
-            const monthlyDebtService = calculateLoanPayment(results.adjustedLoanAmount, interestRate, 4);
-            
-            // Update the financing table to show correct breakdown
-            let financingHTML = `
-                <tr>
-                    <td>Bank Loan</td>
-                    <td class="number">${formatCurrency(baseLoanAmount)}</td>
-                    <td class="number">${(financingPercentage * 100).toFixed(0)}%</td>
-                </tr>
-                <tr>
-                    <td>Equity Investment</td>
-                    <td class="number">${formatCurrency(baseEquityAmount)}</td>
-                    <td class="number">${((1 - financingPercentage) * 100).toFixed(0)}%</td>
-                </tr>
-            `;
-            
-            // Add development interest if capitalized
-            if (results.params.developmentInterest === 'capitalized' && results.developmentInterestTotal > 0) {
-                financingHTML += `
-                    <tr>
-                        <td>Development Interest (Capitalized)</td>
-                        <td class="number">${formatCurrency(results.developmentInterestTotal)}</td>
-                        <td class="number">-</td>
-                    </tr>
-                `;
-            }
-            
-            financingDetails.innerHTML = financingHTML;
-            reportTotalInvestment.textContent = formatCurrency(results.totalInvestment);
-            
-            // Update other financing details
-            if (document.getElementById('reportInterestRate')) {
-                document.getElementById('reportInterestRate').textContent = (interestRate * 100).toFixed(1) + '%';
-            }
-            if (document.getElementById('reportDevelopmentPeriod')) {
-                document.getElementById('reportDevelopmentPeriod').textContent = developmentPeriod + ' months';
-            }
-            if (document.getElementById('reportDebtService')) {
-                document.getElementById('reportDebtService').textContent = formatCurrency(monthlyDebtService);
-            }
-        }
-
         function updateReport() {
             console.log('Updating report with current parameters...');
             
@@ -5434,9 +5250,6 @@
                 
                 // Update Loan Amortization Schedule
                 updateLoanAmortizationSchedule(results);
-                
-                // Update Financing Structure
-                updateFinancingStructure(results);
                 
                 console.log('Report updated successfully');
             } catch (error) {
@@ -5553,230 +5366,83 @@
                 <tr>
                     <td>Land Rental</td>
                     <td>Annual lease</td>
-                    <td class="number">(${formatCurrency(landRental)})</td>
+                    <td class="number">${formatCurrency(landRental)}</td>
                 </tr>
                 <tr>
                     <td>Court Maintenance</td>
                     <td>${numCourts} courts × ${formatCurrency(maintenancePerCourt)}</td>
-                    <td class="number">(${formatCurrency(numCourts * maintenancePerCourt)})</td>
+                    <td class="number">${formatCurrency(numCourts * maintenancePerCourt)}</td>
                 </tr>
                 <tr>
                     <td>Manager Salary</td>
                     <td>Annual</td>
-                    <td class="number">(${formatCurrency(managerSalary)})</td>
+                    <td class="number">${formatCurrency(managerSalary)}</td>
                 </tr>
                 <tr>
                     <td>Instructor Salary</td>
                     <td>Annual</td>
-                    <td class="number">(${formatCurrency(instructorSalary)})</td>
+                    <td class="number">${formatCurrency(instructorSalary)}</td>
                 </tr>
                 <tr>
                     <td>Reception Staff</td>
                     <td>Annual</td>
-                    <td class="number">(${formatCurrency(receptionSalary)})</td>
+                    <td class="number">${formatCurrency(receptionSalary)}</td>
                 </tr>
                 <tr>
                     <td>Maintenance Staff</td>
                     <td>Annual</td>
-                    <td class="number">(${formatCurrency(maintenanceStaffSalary)})</td>
+                    <td class="number">${formatCurrency(maintenanceStaffSalary)}</td>
                 </tr>
                 <tr>
                     <td>Water</td>
                     <td>Annual estimate</td>
-                    <td class="number">(${formatCurrency(waterCost)})</td>
+                    <td class="number">${formatCurrency(waterCost)}</td>
                 </tr>
                 <tr>
                     <td>Electricity</td>
                     <td>Annual estimate</td>
-                    <td class="number">(${formatCurrency(electricityCost)})</td>
+                    <td class="number">${formatCurrency(electricityCost)}</td>
                 </tr>
             `;
             
-            document.getElementById('expenseTotal').textContent = '(' + formatCurrency(results.totalExpenses) + ')';
+            document.getElementById('expenseTotal').textContent = formatCurrency(results.totalExpenses);
         }
 
         function update5YearProjections(results) {
             const tbody = document.getElementById('projectionDetails');
             if (!tbody) return;
             
-            // Use dynamic repayment schedule
-            const adjustedLoanAmount = results.adjustedLoanAmount;
-            const totalRepaymentMonths = (results.params.loanTerm * 12) - results.params.developmentMonths;
-            const monthlyPayment = calculateLoanPayment(adjustedLoanAmount, results.params.interestRate, totalRepaymentMonths / 12);
-            const interestRate = results.params.interestRate;
-            const repaymentSchedule = calculateRepaymentSchedule(results.params.developmentMonths, results.params.loanTerm, results.params.projectPeriod);
+            const projectPeriod = parseInt(document.getElementById('projectPeriod').value);
+            const loanAmount = results.totalInvestment * 0.6; // 60% loan
+            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
+            const monthlyRate = interestRate / 12;
+            const loanTerm = parseInt(document.getElementById('loanTerm').value) * 12; // months
             
-            let remainingBalance = adjustedLoanAmount;
+            // Calculate monthly payment
+            const monthlyPayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, loanTerm)) / 
+                                  (Math.pow(1 + monthlyRate, loanTerm) - 1);
+            const annualDebtService = monthlyPayment * 12;
+            
             let cumulativeProfit = 0;
             let projectionHTML = '';
             
-            for (let i = 0; i < repaymentSchedule.length; i++) {
-                const yearData = repaymentSchedule[i];
-                let revenue = 0;
-                let expenses = 0;
-                let interestExpense = 0;
-                let netIncome = 0;
-                
-                // Calculate proportional revenue/expenses based on operational months
-                const operationalMonths = 12 - yearData.developmentMonths;
-                if (operationalMonths > 0) {
-                    revenue = results.totalRevenue * (operationalMonths / 12);
-                    expenses = results.totalExpenses * (operationalMonths / 12);
-                }
-                
-                // Calculate interest expense for repayment months
-                if (yearData.repaymentMonths > 0) {
-                    interestExpense = remainingBalance * interestRate * (yearData.repaymentMonths / 12);
-                    const annualPayment = monthlyPayment * yearData.repaymentMonths;
-                    const principalPayment = Math.min(annualPayment - interestExpense, remainingBalance);
-                    
-                    // Update remaining balance for next year
-                    remainingBalance = Math.max(0, remainingBalance - principalPayment);
-                }
-                
-                netIncome = revenue - expenses - interestExpense;
+            for (let year = 1; year <= projectPeriod; year++) {
+                const netIncome = results.netProfit - annualDebtService;
                 cumulativeProfit += netIncome;
                 
                 projectionHTML += `
                     <tr>
-                        <td>Year ${yearData.year}</td>
-                        <td class="number">${revenue > 0 ? formatCurrency(revenue) : '€0'}</td>
-                        <td class="number">${expenses > 0 ? '(' + formatCurrency(expenses) + ')' : '€0'}</td>
-                        <td class="number">${interestExpense > 0 ? '(' + formatCurrency(interestExpense) + ')' : '€0'}</td>
-                        <td class="number">${netIncome > 0 ? formatCurrency(netIncome) : (netIncome < 0 ? '(' + formatCurrency(Math.abs(netIncome)) + ')' : '€0')}</td>
-                        <td class="number">${cumulativeProfit > 0 ? formatCurrency(cumulativeProfit) : (cumulativeProfit < 0 ? '(' + formatCurrency(Math.abs(cumulativeProfit)) + ')' : '€0')}</td>
+                        <td>Year ${year}</td>
+                        <td class="number">${formatCurrency(results.totalRevenue)}</td>
+                        <td class="number">${formatCurrency(results.totalExpenses)}</td>
+                        <td class="number">${formatCurrency(annualDebtService)}</td>
+                        <td class="number">${formatCurrency(netIncome)}</td>
+                        <td class="number">${formatCurrency(cumulativeProfit)}</td>
                     </tr>
                 `;
             }
             
             tbody.innerHTML = projectionHTML;
-        }
-
-        function updateLoanAmortizationSchedule(results) {
-            const tbody = document.getElementById('loanAmortizationDetails');
-            if (!tbody) return;
-            
-            // Get the initial loan amount and parameters
-            const initialLoanAmount = results.totalInvestment * results.params.financingPercentage;
-            const developmentInterest = results.adjustedLoanAmount - initialLoanAmount;
-            const adjustedLoanAmount = results.adjustedLoanAmount;
-            const interestRate = results.params.interestRate;
-            const loanTermYears = results.params.loanTerm;
-            const projectPeriodYears = results.params.projectPeriod;
-            const developmentMonths = results.params.developmentMonths;
-            
-            // Calculate dynamic repayment schedule
-            const repaymentSchedule = calculateRepaymentSchedule(developmentMonths, loanTermYears, projectPeriodYears);
-            const totalRepaymentMonths = (loanTermYears * 12) - developmentMonths;
-            const monthlyPayment = calculateLoanPayment(adjustedLoanAmount, interestRate, totalRepaymentMonths / 12);
-            
-            let remainingBalance = initialLoanAmount; // Start with initial loan amount
-            let totalInterest = 0;
-            let totalPrincipal = 0;
-            let totalPayments = 0;
-            let amortizationHTML = '';
-            let developmentInterestAdded = false;
-            
-            for (let i = 0; i < repaymentSchedule.length; i++) {
-                const yearData = repaymentSchedule[i];
-                const openingBalance = remainingBalance;
-                let interestPayment = 0;
-                let principalPayment = 0;
-                let totalPayment = 0;
-                let closingBalance = openingBalance;
-                
-                // Add capitalized development interest at the end of development period
-                if (!developmentInterestAdded && yearData.developmentMonths > 0 && 
-                    (i === repaymentSchedule.length - 1 || repaymentSchedule[i + 1].developmentMonths === 0)) {
-                    remainingBalance += developmentInterest;
-                    closingBalance += developmentInterest;
-                    interestPayment = developmentInterest;
-                    developmentInterestAdded = true;
-                }
-                
-                // Calculate loan payments for this year
-                if (yearData.repaymentMonths > 0) {
-                    const annualInterest = remainingBalance * interestRate * (yearData.repaymentMonths / 12);
-                    const annualPayment = monthlyPayment * yearData.repaymentMonths;
-                    const annualPrincipal = Math.min(annualPayment - annualInterest, remainingBalance);
-                    
-                    if (!developmentInterestAdded) {
-                        interestPayment = annualInterest;
-                    } else {
-                        interestPayment += annualInterest;
-                    }
-                    principalPayment = annualPrincipal;
-                    totalPayment = annualPayment;
-                    closingBalance = Math.max(0, remainingBalance - principalPayment);
-                    
-                    // Final payment adjustment
-                    if (i === repaymentSchedule.length - 1 && closingBalance > 0 && closingBalance < 100) {
-                        principalPayment += closingBalance;
-                        totalPayment = interestPayment + principalPayment;
-                        closingBalance = 0;
-                    }
-                }
-                
-                // Update totals
-                totalInterest += interestPayment;
-                if (principalPayment > 0) {
-                    totalPrincipal += principalPayment;
-                    totalPayments += totalPayment;
-                }
-                
-                // Display logic
-                let interestDisplay = '€0';
-                if (interestPayment > 0) {
-                    if (yearData.developmentMonths > 0 && !yearData.repaymentMonths) {
-                        interestDisplay = formatCurrency(interestPayment) + ' (cap)';
-                    } else if (yearData.developmentMonths > 0 && yearData.repaymentMonths > 0) {
-                        const devPortion = developmentInterest;
-                        const repayPortion = interestPayment - devPortion;
-                        interestDisplay = formatCurrency(devPortion) + ' (cap) + (' + formatCurrency(repayPortion) + ')';
-                    } else {
-                        interestDisplay = '(' + formatCurrency(interestPayment) + ')';
-                    }
-                }
-                
-                amortizationHTML += `
-                    <tr>
-                        <td>Year ${yearData.year}</td>
-                        <td class="number">${formatCurrency(openingBalance)}</td>
-                        <td class="number">${interestDisplay}</td>
-                        <td class="number">${principalPayment > 0 ? '(' + formatCurrency(principalPayment) + ')' : '€0'}</td>
-                        <td class="number">${totalPayment > 0 ? '(' + formatCurrency(totalPayment) + ')' : '€0'}</td>
-                        <td class="number">${formatCurrency(closingBalance)}</td>
-                    </tr>
-                `;
-                
-                // Update remaining balance for next iteration
-                remainingBalance = closingBalance;
-            }
-            
-            tbody.innerHTML = amortizationHTML;
-            
-            // Add validation checks
-            const finalBalance = remainingBalance;
-            const principalCheck = Math.abs(totalPrincipal - adjustedLoanAmount);
-            
-            // Add validation row if there are discrepancies
-            if (finalBalance > 1 || principalCheck > 1) {
-                amortizationHTML += `
-                    <tr style="background-color: #fee; border: 1px solid #fcc;">
-                        <td colspan="6" style="text-align: center; color: #c33; font-weight: bold;">
-                            ⚠️ VALIDATION ERRORS: Final Balance: ${formatCurrency(finalBalance)}, Principal Check: ${formatCurrency(principalCheck)}
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML = amortizationHTML;
-            }
-            
-            // Update footer totals
-            document.getElementById('totalOpeningBalance').textContent = formatCurrency(initialLoanAmount);
-            document.getElementById('totalInterestPaid').textContent = '(' + formatCurrency(totalInterest) + ')';
-            document.getElementById('totalPrincipalPaid').textContent = '(' + formatCurrency(totalPrincipal) + ')';
-            document.getElementById('totalPaymentsMade').textContent = '(' + formatCurrency(totalPayments) + ')';
-            document.getElementById('totalClosingBalance').textContent = formatCurrency(finalBalance);
         }
 
         // Make all functions globally available

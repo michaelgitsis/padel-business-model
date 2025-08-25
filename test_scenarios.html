@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Development Period Test Scenarios</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 20px 0; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; }
+        .pass { border-color: #28a745; background: #d4edda; }
+        .fail { border-color: #dc3545; background: #f8d7da; }
+        .test-title { font-weight: bold; margin-bottom: 10px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Padel Financial Model - Development Period Test Scenarios</h1>
+    
+    <div id="test-results"></div>
+
+    <script>
+        // Test the repayment schedule function
+        function calculateRepaymentSchedule(developmentMonths, loanTermYears, projectPeriodYears) {
+            const totalRepaymentMonths = (loanTermYears * 12) - developmentMonths;
+            const developmentYears = Math.ceil(developmentMonths / 12);
+            
+            let schedule = [];
+            let remainingRepaymentMonths = totalRepaymentMonths;
+            
+            for (let year = 1; year <= projectPeriodYears; year++) {
+                let yearData = {
+                    year: year,
+                    isDevelopment: false,
+                    repaymentMonths: 0,
+                    developmentMonths: 0
+                };
+                
+                if (year <= developmentYears) {
+                    const devMonthsInYear = Math.min(developmentMonths - ((year - 1) * 12), 12);
+                    yearData.developmentMonths = devMonthsInYear;
+                    yearData.repaymentMonths = Math.max(0, Math.min(12 - devMonthsInYear, remainingRepaymentMonths));
+                    yearData.isDevelopment = devMonthsInYear > 0;
+                } else {
+                    yearData.repaymentMonths = Math.min(12, remainingRepaymentMonths);
+                }
+                
+                remainingRepaymentMonths -= yearData.repaymentMonths;
+                schedule.push(yearData);
+                
+                if (remainingRepaymentMonths <= 0) break;
+            }
+            
+            return schedule;
+        }
+
+        function runTestScenario(scenarioName, developmentMonths, loanTermYears = 5, projectPeriodYears = 5) {
+            const schedule = calculateRepaymentSchedule(developmentMonths, loanTermYears, projectPeriodYears);
+            
+            // Calculate totals
+            let totalDevMonths = 0;
+            let totalRepaymentMonths = 0;
+            
+            schedule.forEach(year => {
+                totalDevMonths += year.developmentMonths;
+                totalRepaymentMonths += year.repaymentMonths;
+            });
+            
+            const expectedRepaymentMonths = (loanTermYears * 12) - developmentMonths;
+            
+            // Validation checks
+            const devMonthsCorrect = totalDevMonths === developmentMonths;
+            const repaymentMonthsCorrect = totalRepaymentMonths === expectedRepaymentMonths;
+            const totalMonthsCorrect = (totalDevMonths + totalRepaymentMonths) === (loanTermYears * 12);
+            
+            const allTestsPass = devMonthsCorrect && repaymentMonthsCorrect && totalMonthsCorrect;
+            
+            // Create table HTML
+            let tableHTML = `
+                <table>
+                    <tr>
+                        <th>Year</th>
+                        <th>Development Months</th>
+                        <th>Repayment Months</th>
+                        <th>Total Months</th>
+                        <th>Status</th>
+                    </tr>
+            `;
+            
+            schedule.forEach(year => {
+                const totalYearMonths = year.developmentMonths + year.repaymentMonths;
+                tableHTML += `
+                    <tr>
+                        <td>Year ${year.year}</td>
+                        <td>${year.developmentMonths}</td>
+                        <td>${year.repaymentMonths}</td>
+                        <td>${totalYearMonths}</td>
+                        <td>${year.isDevelopment ? 'Development' : 'Operations'}</td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `
+                <tr style="font-weight: bold; background-color: #e9ecef;">
+                    <td>TOTAL</td>
+                    <td>${totalDevMonths}</td>
+                    <td>${totalRepaymentMonths}</td>
+                    <td>${totalDevMonths + totalRepaymentMonths}</td>
+                    <td>Expected: ${loanTermYears * 12} months</td>
+                </tr>
+            </table>
+            `;
+            
+            return {
+                scenarioName,
+                developmentMonths,
+                loanTermYears,
+                projectPeriodYears,
+                schedule,
+                totalDevMonths,
+                totalRepaymentMonths,
+                expectedRepaymentMonths,
+                devMonthsCorrect,
+                repaymentMonthsCorrect,
+                totalMonthsCorrect,
+                allTestsPass,
+                tableHTML
+            };
+        }
+
+        // Test scenarios
+        const testScenarios = [
+            { name: "6-month development", dev: 6 },
+            { name: "12-month development (base case)", dev: 12 },
+            { name: "18-month development", dev: 18 },
+            { name: "24-month development", dev: 24 },
+            { name: "3-month development", dev: 3 },
+            { name: "30-month development", dev: 30 }
+        ];
+
+        function runAllTests() {
+            const resultsContainer = document.getElementById('test-results');
+            let allScenariosPass = true;
+            
+            testScenarios.forEach(scenario => {
+                const result = runTestScenario(scenario.name, scenario.dev);
+                
+                if (!result.allTestsPass) {
+                    allScenariosPass = false;
+                }
+                
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `test-result ${result.allTestsPass ? 'pass' : 'fail'}`;
+                
+                resultDiv.innerHTML = `
+                    <div class="test-title">
+                        ${result.scenarioName} - ${result.allTestsPass ? 'PASS' : 'FAIL'}
+                    </div>
+                    <p><strong>Development Period:</strong> ${result.developmentMonths} months</p>
+                    <p><strong>Loan Term:</strong> ${result.loanTermYears} years (${result.loanTermYears * 12} months)</p>
+                    <p><strong>Expected Repayment Period:</strong> ${result.expectedRepaymentMonths} months</p>
+                    <p><strong>Actual Repayment Period:</strong> ${result.totalRepaymentMonths} months</p>
+                    
+                    <div style="margin-top: 15px;">
+                        <strong>Validation Results:</strong>
+                        <ul>
+                            <li>Development months correct: ${result.devMonthsCorrect ? '✓' : '✗'}</li>
+                            <li>Repayment months correct: ${result.repaymentMonthsCorrect ? '✓' : '✗'}</li>
+                            <li>Total months correct: ${result.totalMonthsCorrect ? '✓' : '✗'}</li>
+                        </ul>
+                    </div>
+                    
+                    ${result.tableHTML}
+                `;
+                
+                resultsContainer.appendChild(resultDiv);
+            });
+            
+            // Summary
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = `test-result ${allScenariosPass ? 'pass' : 'fail'}`;
+            summaryDiv.innerHTML = `
+                <div class="test-title">
+                    OVERALL RESULT: ${allScenariosPass ? 'ALL TESTS PASS' : 'SOME TESTS FAILED'}
+                </div>
+                <p>Tested ${testScenarios.length} different development period scenarios.</p>
+            `;
+            resultsContainer.insertBefore(summaryDiv, resultsContainer.firstChild);
+        }
+
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', runAllTests);
+    </script>
+</body>
+</html>

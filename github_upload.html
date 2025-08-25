@@ -5248,9 +5248,6 @@
                 // Update 5-Year Projections
                 update5YearProjections(results);
                 
-                // Update Loan Amortization Schedule
-                updateLoanAmortizationSchedule(results);
-                
                 console.log('Report updated successfully');
             } catch (error) {
                 console.error('Error updating report:', error);
@@ -5443,65 +5440,6 @@
             }
             
             tbody.innerHTML = projectionHTML;
-        }
-
-        function updateLoanAmortizationSchedule(results) {
-            const tbody = document.getElementById('loanAmortizationDetails');
-            if (!tbody) return;
-            
-            const loanAmount = results.adjustedLoanAmount;
-            const interestRate = results.params.interestRate;
-            const monthlyPayment = calculateLoanPayment(loanAmount, interestRate, results.params.loanTerm);
-            const annualPayment = monthlyPayment * 12;
-            const loanTermYears = results.params.loanTerm;
-            
-            let remainingBalance = loanAmount;
-            let totalInterest = 0;
-            let totalPrincipal = 0;
-            let totalPayments = 0;
-            let amortizationHTML = '';
-            
-            for (let year = 1; year <= loanTermYears; year++) {
-                const openingBalance = remainingBalance;
-                
-                // Calculate annual interest on the opening balance
-                const interestPayment = openingBalance * interestRate;
-                
-                // Principal payment is the difference between total payment and interest
-                const principalPayment = Math.min(annualPayment - interestPayment, openingBalance);
-                
-                // Calculate closing balance
-                const closingBalance = Math.max(0, openingBalance - principalPayment);
-                
-                // Update totals
-                totalInterest += interestPayment;
-                totalPrincipal += principalPayment;
-                totalPayments += (interestPayment + principalPayment);
-                
-                amortizationHTML += `
-                    <tr>
-                        <td>Year ${year}</td>
-                        <td class="number">${formatCurrency(openingBalance)}</td>
-                        <td class="number">${formatCurrency(interestPayment)}</td>
-                        <td class="number">${formatCurrency(principalPayment)}</td>
-                        <td class="number">${formatCurrency(interestPayment + principalPayment)}</td>
-                        <td class="number">${formatCurrency(closingBalance)}</td>
-                    </tr>
-                `;
-                
-                // Update remaining balance for next iteration
-                remainingBalance = closingBalance;
-                
-                // Break if loan is fully paid off
-                if (closingBalance === 0) break;
-            }
-            
-            tbody.innerHTML = amortizationHTML;
-            
-            // Update footer totals
-            document.getElementById('totalInterestPaid').textContent = formatCurrency(totalInterest);
-            document.getElementById('totalPrincipalPaid').textContent = formatCurrency(totalPrincipal);
-            document.getElementById('totalPaymentsMade').textContent = formatCurrency(totalPayments);
         }
 
         // Make all functions globally available
