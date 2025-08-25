@@ -4506,9 +4506,6 @@
             let cumulativeCashFlow = 0;
             
             // Reset for cash flow calculations
-            remainingBalance = loanBalance;
-            
-            // Reset and calculate cash flow with dynamic schedule
             remainingBalance = adjustedLoanAmount;
             const cashFlowRepaymentSchedule = calculateRepaymentSchedule(results.params.developmentMonths, results.params.loanTerm, results.params.projectPeriod);
             
